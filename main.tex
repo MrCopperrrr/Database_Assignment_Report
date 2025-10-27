@@ -1,0 +1,179 @@
+%==============================================================================
+% PACKAGE
+% PACKAGES
+% {
+\documentclass[a4paper]{article}
+\usepackage{a4wide,amssymb,epsfig,latexsym,multicol,array,hhline,fancyhdr}
+\usepackage{vntex}
+\usepackage{float}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+\usepackage{enumerate}
+\usepackage{xcolor}
+\usepackage{graphicx}	
+\usepackage{enumitem}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}m{#1}} % căn trái + giữa dọc
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}   % căn giữa ngang + dọc
+% Standard graphics package
+\usepackage{array}
+\usepackage{tabularx, caption}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{rotating}
+\usepackage{graphics}
+\usepackage{geometry}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{setspace}
+\usepackage{epsfig}
+\usepackage{tikz}
+\usepackage{xfrac}
+\usepackage{bm}
+\usepackage{biblatex}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{adjustbox} % Để thu nhỏ bảng
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+
+\tikzstyle{block} = [
+    rectangle,
+    rounded corners=5pt,
+    minimum width=6cm,
+    minimum height=1.5cm,
+    text width=6cm,
+    align=center,
+    draw=black,
+    font=\normalsize
+]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\tcbuselibrary{listings}
+\definecolor{myblue}{rgb}{0,0,0.6}
+\definecolor{mybg}{rgb}{0.95,0.95,1}
+
+
+\usepackage[colorlinks]{hyperref}
+% \usepackage[acronym,toc]{glossaries}
+% \usepackage[symbols,nogroupskip,nonumberlist]{glossaries-extra}
+\usepackage[
+ sort=none,% no sorting or indexing required
+ abbreviations,% create list of abbreviations
+ symbols,% create list of symbols
+ stylemods,style=list, % set the default glossary style
+ nogroupskip, nonumberlist, nomain
+]{glossaries-extra}
+
+%==============================================================================
+% FORMAT
+% FORMATTING
+% {
+\DeclareMathOperator{\arccot}{arccot}
+\captionsetup[table]{name=Bảng}
+\captionsetup[figure]{name=Hình}
+\newenvironment{Description}{\list{}{%
+    \let\makelabel\descriptionlabel    % this comes from the original description environment
+    \setlength{\rightmargin}{\leftmargin}% this comes from the original quote environment
+    \setlength{\labelwidth}{0pt}%          this is new
+    }}{\endlist}
+
+\addbibresource{citations.bib}
+    
+\hypersetup{urlcolor=blue,linkcolor=black,citecolor=black,colorlinks=true} 
+\usetikzlibrary{arrows,snakes,backgrounds}
+\definecolor{mathblue}{RGB}{0,114,188}
+% \makeatletter  \def\m@th{\mathsurround\z@\color{mathblue}} \makeatother
+% \everymath{\color{mathblue}}
+% \setmathfont[Color=000000]{Arial}
+%\usepackage{pstcol} 								% PSTricks with the standard color package
+\newtheorem{theorem}{{\bf Theorem}}
+\newtheorem{property}{{\bf Property}}
+\newtheorem{proposition}{{\bf Proposition}}
+\newtheorem{corollary}[proposition]{{\bf Corollary}}
+\newtheorem{lemma}[proposition]{{\bf Lemma}}
+
+\AtBeginDocument{\renewcommand{\listfigurename}{Danh sách Hình ảnh}}
+\AtBeginDocument{\renewcommand{\listtablename}{Danh sách Bảng}}
+\AtBeginDocument{\renewcommand*\contentsname{Mục lục}}
+\AtBeginDocument{\renewcommand*\refname{References}}
+%\usepackage{fancyhdr}
+
+\setlength{\headheight}{40pt}
+\pagestyle{fancy}
+\fancyhead{} % clear all header fields
+\fancyhead[L]{
+ \begin{tabular}{rl}
+    \begin{picture}(25,15)(0,0)
+    \put(0,-8){\includegraphics[width=8mm, height=8mm]{Picture/hcmut.png}}
+    %\put(0,-8){\epsfig{width=10mm,figure=hcmut.eps}}
+   \end{picture}&
+	%\includegraphics[width=8mm, height=8mm]{hcmut.png} & %
+	\begin{tabular}{l}
+		\textbf{\bf \ttfamily Đại học quốc gia Thành phố Hồ Chí Minh}\\
+        \textbf{\bf \ttfamily Trường đại học Bách Khoa Thành phố Hồ Chí Minh}
+	\end{tabular} 	
+ \end{tabular}
+}
+\fancyhead[R]{
+	\begin{tabular}{l}
+		\tiny \bf \\
+		\tiny \bf 
+	\end{tabular}  }
+\fancyfoot{} % clear all footer fields
+\fancyfoot[L]{\scriptsize \ttfamily Bài tập lớn Hệ cơ sở Dữ liệu - Năm học 2025 - 2026}
+\fancyfoot[R]{\scriptsize \ttfamily Trang {\thepage}/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0.3pt}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\makeatletter
+\newcounter {subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\@alph\c@subsubsubsection}
+\newcommand\subsubsubsection{\@startsection{subsubsubsection}{4}{\z@}%
+                                     {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                     {1.5ex \@plus .2ex}%
+                                     {\normalfont\normalsize\bfseries}}
+\newcommand*\l@subsubsubsection{\@dottedtocline{4}{7em}{3.5em}}
+\newcommand*{\subsubsubsectionmark}[1]{}
+\makeatother
+
+%==============================================================================
+% BEGIN DOCUMENT
+\begin{document}
+
+%==============================================================================
+% TITLE PAGE 
+\input{Section/TitlePage}
+
+%==============================================================================
+% TABLE OF CONTENTS, SYMBOLS AND ACRONYMS, FIGURES AND TABLES
+\input{Section/TableOfContents}
+
+%==============================================================================
+% MEMBERS LIST AND WORKLOAD
+\input{Section/Members}
+
+%==============================================================================
+% MAIN CONTENTS
+\pagebreak
+\input{Section/1}
+
+\newpage
+\input{Section/2}
+
+\newpage
+\input{Section/3}
+
+% \newpage
+% \input{Section/4}
+
+%==============================================================================
+% END DOCUMENT
+\end{document}
+
+
