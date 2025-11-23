@@ -1,15 +1,1098 @@
-\section*{4. Kết luận}
-\addcontentsline{toc}{section}{4. Kết luận}
+\section{Assignment 2}
+    \subsection{Tạo bảng và dữ liệu mẫu }
+    %========================================================================================
+    \subsubsection{Giới thiệu}
+    Trong khuôn khổ Bài tập lớn 2 của học phần Cơ sở dữ liệu, nhóm tiến hành xây dựng và hiện thực hóa cơ sở dữ liệu cho một hệ thống thương mại điện tử mô phỏng theo nền tảng Shopee. Phần 1 của bài tập yêu cầu sinh viên phải hiện thực toàn bộ các bảng dữ liệu đã thiết kế từ BTL1 bằng cú pháp SQL, đồng thời áp dụng đầy đủ các ràng buộc khóa chính, khóa ngoại, ràng buộc dữ liệu và ràng buộc ngữ nghĩa. Bên cạnh đó, đề bài yêu cầu tạo bộ dữ liệu mẫu có ý nghĩa, đảm bảo mỗi bảng có tối thiểu năm bản ghi và dữ liệu phải phù hợp với ngữ cảnh nghiệp vụ.
 
-%========================================================================================
-\subsection*{4.1. Tỗng kết}
-\addcontentsline{toc}{subsection}{4.1. Tỗng kết}
+    
+    %========================================================================================
+    \subsubsection{Mô hình dữ liệu và định hướng thiết kế}
+    CSDL gồm 21 bảng chính, được chia thành 5 nhóm chức năng lớn:\\
+    \begin{center}
+    \begin{tabular}{l p{7cm}}
+    \toprule
+    \textbf{Nhóm Chức Năng} & \textbf{Các Bảng Liên Quan} \\
+    \midrule
+    Quản lý người dùng (User) & User, Buyer, Seller, Payment\_Method \\
+    \midrule
+    Quản lý cửa hàng và danh mục & Store, Category, Product\_Category \\
+    \midrule
+    Quản lý sản phẩm & Product, Product\_Variant, Product\_Image, Product\_Video \\
+    \midrule
+    Quản lý giỏ hàng và đơn hàng & Cart, CartItem, Order, OrderUnit \\
+    \midrule
+    Quản lý giao dịch và đánh giá & Order\_Line, PAYMENT\_TRANSACTION, SHIPMENT, Review, Review\_Images, Review\_Video \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+    Cấu trúc này mô phỏng gần như đầy đủ hoạt động của hệ thống Shopee thực tế.\\
+    \\
+    Cơ sở dữ liệu được thiết kế hướng tới mô phỏng đầy đủ vòng đời giao dịch của người dùng trong hệ thống thương mại điện tử gồm người bán, người mua, cửa hàng, sản phẩm, giỏ hàng, đơn hàng, vận chuyển và đánh giá sản phẩm. Từ mô hình ERD đã xây dựng ở BTL1, hệ thống được triển khai thành 21 bảng quan hệ có liên kết chặt chẽ với nhau. Cấu trúc được tổ chức theo các nhóm chức năng để đảm bảo tính mạch lạc và dễ mở rộng.\\
+    \\
+    Nhóm “User” đóng vai trò trung tâm, quản lý danh tính và phân loại tài khoản theo hai nhánh Buyer và Seller thông qua mô hình chuyên biệt hóa. Từ đó, hệ thống mở rộng sang các bảng chức năng như phương thức thanh toán, cửa hàng, danh mục sản phẩm, sản phẩm và các thành phần phụ đi kèm. Những bảng bổ trợ như giỏ hàng, dòng đơn hàng, vận đơn, giao dịch thanh toán và đánh giá được thiết kế nhằm mô phỏng chính xác quy trình mua sắm.\\
+    \\
+    Mô hình hướng tới ba tiêu chí cơ bản: tránh dư thừa dữ liệu, đảm bảo toàn vẹn tham chiếu và phản ánh đúng các quy tắc nghiệp vụ (business rules) thông qua các ràng buộc ngữ nghĩa.\\
+    
+        %========================================================================================
+        \subsubsection{Hiện thực cơ sở dữ liệu và bảng dữ liệu mẫu}
+        Trong phần này, cơ sở dữ liệu được phân tích theo từng bảng. Mỗi bảng được mô tả gồm khóa chính, khóa ngoại liên quan, các ràng buộc dữ liệu và các ràng buộc ngữ nghĩa (trigger) áp dụng trực tiếp lên bảng đó. 
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/user1.png}\\
+            \textbf{Bảng User}
+        \end{center}
+        
+        Bảng User đóng vai trò trung tâm, quản lý danh tính của mọi đối tượng tham gia hệ thống. Khóa chính của bảng là trường UserID tự động tăng. Hai thuộc tính Email và Phone được ràng buộc duy nhất nhằm tránh trùng lặp thông tin tài khoản. Bên cạnh các thuộc tính văn bản cơ bản, bảng còn áp dụng nhiều ràng buộc kiểm tra ví dụ như là Email phải thỏa mãn định dạng email hợp lệ và Phone phải tuân theo cú pháp số điện thoại Việt Nam gồm 10 chữ số bắt đầu bằng số 0. Hai thuộc tính Role và Status được kiểm soát bằng CHECK nhằm đảm bảo chỉ nhận các giá trị được phép.\\
+        \\
+        Ngoài các ràng buộc dữ liệu, bảng User còn liên quan đến ràng buộc ngữ nghĩa. Khi người dùng chỉnh sửa Role thì sẽ ngăn không cho chuyển người dùng sang Buyer hoặc Seller nếu họ đã tồn tại trong bảng chuyên biệt hóa tương ứng.\\
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/user2.png}\\
+            \textbf{ Dữ liệu mẫu bảng User}
+        \end{center}
+        Bảng User được khởi tạo với mười tài khoản, trong đó năm tài khoản thuộc vai trò người bán (Seller) và năm tài khoản thuộc vai trò người mua (Buyer). Các tài khoản này phân bố nhiều trạng thái khác nhau như Active, Inactive hoặc Banned để phục vụ việc kiểm thử luồng nghiệp vụ liên quan đến quyền truy cập và hạn chế thao tác. Dữ liệu email và số điện thoại được tạo theo đúng định dạng hợp lệ và không trùng lặp, phù hợp với yêu cầu UNIQUE và REGEXP. Việc phân tách rõ ràng hai nhóm Buyer và Seller hỗ trợ cho bước chèn dữ liệu vào bảng Buyer và Seller ở phần tiếp theo.
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/buyer1.png}\\
+            \textbf{Bảng Buyer}
+        \end{center}
+        Buyer là bảng chuyên biệt hóa từ User. Thuộc tính BuyerID là khóa chính và UserID đồng thời đóng vai trò khóa ngoại trỏ sang bảng User. Để đảm bảo một người dùng không thể vừa là Buyer vừa là Seller, thì sẽ kiểm tra rằng UserID được thêm mới phải có Role = 'Buyer' trong bảng User và không được tồn tại trong bảng Seller. Bảng Buyer không có thêm thuộc tính mở rộng, toàn bộ đặc điểm của người mua được quản lý thông qua các bảng chức năng như Payment Method, Cart, Order, Review.
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/seller1.png}\\
+            \textbf{Bảng Seller}
+        \end{center}
+        Tương tự Buyer, bảng Seller là nhánh còn lại của chuyên biệt hóa từ User. SellerID là khóa chính, và UserID là khóa ngoại tham chiếu bảng User với ràng buộc duy nhất. Bảng có thêm hai thuộc tính là KYCStatus và BankAccount. KYCStatus được kiểm soát bằng CHECK, chỉ nhận các giá trị Pending, Approved hoặc Rejected.\\
+        \\
+        Yêu cầu phải bảo đảm UserID được thêm vào phải có Role 'Seller' và đặc biệt không được xuất hiện trong bảng Buyer, từ đó duy trì tính toàn vẹn của phân cấp.
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/buyerseller.png}\\
+            \textbf{Dữ liệu mẫu của Buyer và Seller}
+        \end{center}    
+        Từ mười tài khoản trong bảng User, năm tài khoản có Role = 'Buyer' được ánh xạ sang bảng Buyer thông qua UserID. Bảng Seller cũng được khởi tạo dựa trên năm tài khoản còn lại, mỗi bản ghi gắn liền với trạng thái KYC khác nhau như Approved, Pending hoặc Rejected. Việc cung cấp dữ liệu KYC đa dạng cho phép kiểm thử các luồng xử lý liên quan đến xác minh tài khoản người bán. Đồng thời, việc chèn dữ liệu đảm bảo không có tài khoản nào vừa xuất hiện ở Buyer vừa xuất hiện ở Seller, phản ánh đúng ràng buộc ngữ nghĩa đã nêu.\\
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/paymeth1.png}\\
+            \textbf{Bảng Payment Method}
+        \end{center}  
+        Bảng này mô tả các phương thức thanh toán của từng Buyer. MethodID đóng vai trò khóa chính. BuyerID là khóa ngoại tham chiếu bảng Buyer. Để tránh trường hợp một Buyer lưu trùng phương thức thanh toán, nhóm sử dụng ràng buộc UNIQUE trên ba thuộc tính BuyerID, Type và Detail. Kiểu thanh toán được kiểm soát chính xác bằng CHECK.\\
+        \\
+        Bảng này còn chịu một ràng buộc ngữ nghĩa quan trọng: mỗi Buyer phải có ít nhất một phương thức thanh toán. Hai trigger BD\_PaymentMethod\_Total và BU\_PaymentMethod\_Total đảm bảo khi xóa hoặc thay đổi BuyerID của một phương thức thanh toán, hệ thống sẽ từ chối nếu đó là phương thức cuối cùng của Buyer.
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/paymeth1.png}\\
+            \textbf{Dữ liệu mẫu của bảng Payment method}
+        \end{center}   
+        Mỗi Buyer được gán từ một đến hai phương thức thanh toán, bao gồm Credit Card, E-Wallet hoặc COD. Dữ liệu được thiết kế sao cho không trùng lặp kết hợp giữa BuyerID – Type – Detail, phù hợp với ràng buộc UNIQUE đang áp dụng trên bảng. Một số Buyer chỉ có một phương thức thanh toán nhằm kiểm thử trigger ngăn chặn việc xóa phương thức cuối cùng. Ngoài ra, các chuỗi mô tả thẻ hoặc ví điện tử được ghi đúng định dạng và liên quan tới số điện thoại hoặc thông tin danh tính của Buyer.\\
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/store1.png}\\
+            \textbf{Bảng Store}
+        \end{center}
+        Store quản lý các cửa hàng của người bán. StoreID là khóa chính và SellerID là khóa ngoại, liên kết mỗi cửa hàng với đúng một người bán. Các thuộc tính Name, Brand, BrandProfile và ReturnPolicy đều bắt buộc nhằm đảm bảo thông tin cửa hàng đầy đủ. Thuộc tính Status được kiểm soát bằng CHECK để nhận giá trị Active hoặc Inactive. Không có trigger gắn trực tiếp cho Store nhưng nó đóng vai trò trung gian trong liên kết đến Product.
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/store2.png}\\
+            \textbf{Dữ liệu mẫu của bảng Store}
+        \end{center}
+    Bảng Store được khởi tạo với sáu cửa hàng, mỗi cửa hàng thuộc về một Seller. Các cửa hàng này khác nhau về ngành hàng (điện tử, thời trang, mỹ phẩm, thể thao, gia dụng, sách) và mang các thương hiệu cụ thể như TechPro, StyleUp hoặc Glamour. Thông tin mô tả thương hiệu và chính sách đổi trả được xây dựng chi tiết nhằm mô phỏng nội dung thực tế trong hệ thống thương mại điện tử. Trạng thái cửa hàng được phân bố giữa Active và Inactive nhằm hỗ trợ kiểm thử thao tác tạo và hiển thị sản phẩm.
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/cate1.png}\\
+            \textbf{Bảng Category}
+        \end{center}
+        Category là bảng phân cấp danh mục. CategoryID là khóa chính. Thuộc tính ParentCategoryID tham chiếu đến CategoryID trong cùng bảng, thực hiện quan hệ cây. Tên danh mục được kiểm soát độ dài tối thiểu bằng CHECK (tối thiểu 3 ký tự). Thì ràng buộc sẽ từ chối xóa Category nếu còn tồn tại sản phẩm liên kết trong bảng Product\_Category nhằm duy trì tính toàn vẹn.
+        \begin{center}
+            \includegraphics[scale=0.8]{Picture/cate2.png}\\
+        \textbf{Dữ liệu mẫu của bảng Category}
+    \end{center}
+    Bảng Category được tạo với năm danh mục, bao gồm các danh mục cấp cha như Điện tử, Thời trang và Gia dụng, cùng hai danh mục con là Điện thoại và Phụ kiện thời trang. Cấu trúc phân cấp đúng với mô hình nhiều cấp đã xây dựng ở BTL1. Dữ liệu này hỗ trợ cho bảng Product\_Category trong việc gán sản phẩm vào danh mục tương ứng.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/Product1.png}\\
+        \textbf{Bảng Product}
+    \end{center}
+    Product quản lý thông tin chung của sản phẩm. ProductID là khóa chính, StoreID là khóa ngoại tham chiếu Store. Trạng thái sản phẩm và mô tả chứa các thông tin hiển thị trên trang sản phẩm. Sản phẩm liên quan đến rất nhiều bảng khác: product\_variant, product\_image, product\_video, Product\_Category và OrderLine.\\
+    \\
+    Một ràng buộc ngữ nghĩa quan trọng liên quan đến bảng này là không cho phép xóa một sản phẩm nếu còn liên kết với danh mục trong Product\_Category.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/Product2.png}\\
+        \textbf{Dữ liệu mẫu bảng Product}
+    \end{center}
+    Bảng Product chứa mười hai sản phẩm đến từ nhiều cửa hàng. Các sản phẩm được lựa chọn từ nhiều ngành hàng nhằm bảo đảm khả năng kiểm thử đa dạng như điện thoại, laptop, áo thun, quần jeans, mỹ phẩm, phụ kiện thể thao, bóng đá, đèn ngủ, sách và bút. Mỗi sản phẩm có đầy đủ tiêu đề, mô tả chi tiết và trạng thái sản phẩm (Available hoặc Out of Stock). Việc chọn sản phẩm đa dạng cho phép kiểm thử đầy đủ các ràng buộc khóa ngoại với Store, Category và các bảng phụ.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/productvar1.png}\\
+        \textbf{Bảng Product\_Variant}
+    \end{center}
+    Product\_variant lưu biến thể của sản phẩm (màu sắc, kích thước…). ProductVariantID là khóa chính và ProductID là khóa ngoại. Các thuộc tính giá gốc, giá khuyến mãi và tồn kho được áp dụng CHECK bảo đảm giá trị hợp lệ. Quan trọng hơn, trigger trg\_prevent\_last\_variant\_update đảm bảo rằng một sản phẩm luôn phải có ít nhất một biến thể. Trigger sẽ từ chối việc thay đổi ProductID của biến thể nếu biến thể đó là biến thể cuối cùng của sản phẩm cũ.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/productvar2.png}\\
+        \textbf{Dữ liệu mẫu bảng Product\_Variant}
+    \end{center}
+    Mỗi sản phẩm được gán ít nhất một biến thể, nhiều sản phẩm có từ ba đến bốn biến thể khác nhau. Dữ liệu biến thể bao gồm giá gốc, giá khuyến mãi và số lượng tồn kho, tất cả đều tuân theo ràng buộc CHECK. Các biến thể được mô tả theo thực tế, chẳng hạn các dòng điện thoại có các phiên bản bộ nhớ 128GB, 256GB hoặc 512GB, còn quần áo có nhiều size. Một sản phẩm chỉ có một biến thể được dùng để kiểm thử trigger ngăn không cho di chuyển biến thể cuối cùng sang sản phẩm khác.\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/proimgvid.png}\\
+        \textbf{Bảng product\_image và product\_video}
+    \end{center}
+    Hai bảng này lưu lần lượt URL ảnh và video của sản phẩm, mỗi bảng sử dụng khóa kép làm khóa chính: (ProductID, Image/Video). ProductID đóng vai trò khóa ngoại. Không có ràng buộc ngữ nghĩa bổ sung vì các bảng này chỉ lưu dữ liệu tĩnh.\\
+     \begin{center}
+        \includegraphics[scale=0.8]{Picture/proimg.png}\\
+        \textbf{Dữ liệu mẫu bảng product\_image}
+    \end{center}
+    
+     \begin{center}
+        \includegraphics[scale=0.8]{Picture/provid.png}\\
+        \textbf{Dữ liệu mẫu bảng product\_video}
+    \end{center}
+    Hai bảng này lưu thông tin hình ảnh và video của sản phẩm thông qua URL. Mỗi sản phẩm có từ hai đến bốn hình ảnh nhằm mô phỏng việc hiển thị sản phẩm đầy đủ trên giao diện người dùng. Video sản phẩm được thêm vào cho một số sản phẩm chính như điện thoại, tai nghe, laptop hoặc mỹ phẩm. Dữ liệu được chuẩn hóa theo cấu trúc “https://example.com/...”, bảo đảm không vi phạm ràng buộc khóa kép.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/procate1.png}\\
+        \textbf{Bảng ProductCategory}
+    \end{center}
+    Product\_Category mô tả quan hệ nhiều–nhiều giữa Product và Category. Khóa chính là cặp ProductID – CategoryID. Có 2 ràng buộc nhằm đảm bảo rằng Product và Category phải tồn tại trước khi gán, đồng thời không được xóa khi còn đang liên kết.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/procate2.png}\\
+        \textbf{Dữ liệu mẫu bảng ProductCategory}
+    \end{center}  
+    Các sản phẩm được liên kết với danh mục phù hợp. Ví dụ, điện thoại được gán vào danh mục Điện thoại (CategoryID = 4), quần jeans vào Thời trang và son môi vào Phụ kiện thời trang. Việc gán danh mục cho từng sản phẩm phục vụ kiểm thử trigger ngăn xóa Product hoặc Category khi còn liên kết, đồng thời giúp kiểm thử truy vấn lọc sản phẩm theo danh mục.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/cart1.png}\\
+        \textbf{Bảng Cart và CartItem}
+    \end{center}  
+    Cart lưu giỏ hàng theo BuyerID. CartItem lưu từng mặt hàng trong giỏ. Khóa chính của Cart là CartID, còn CartItem dùng khóa kép (CartID, ProductVariantID). Quantity được kiểm soát bằng CHECK > 0.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/cart2.png}\\
+        \textbf{Dữ liệu mẫu bảng Cart}
+    \end{center}  
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/cart3.png}\\
+        \textbf{Dữ liệu mẫu bảng CartItem}
+    \end{center}      
+    Bảng Cart khởi tạo ba giỏ hàng thuộc ba người mua khác nhau. Các giỏ hàng này chứa các CartItem liên quan đến nhiều biến thể sản phẩm khác nhau. Dữ liệu Quantity luôn lớn hơn 0 theo ràng buộc CHECK và SKU được sinh mô phỏng theo định dạng “SKU-xxx”. Bố trí giỏ hàng theo nhiều Buyer cho phép kiểm thử trigger ngăn xóa giỏ hàng khi vẫn còn CartItem.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/order1.png}\\
+        \textbf{Bảng Order}
+    \end{center}     
+    Order quản lý đơn hàng của Buyer. OrderID là khóa chính, BuyerID là khóa ngoại. Thuộc tính PaymentStatus được kiểm soát bằng CHECK. Đơn hàng này liên kết đến OrderUnit, OrderLine và PAYMENT\_TRANSACTION. 
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/order2.png}\\
+        \textbf{Dữ liệu mẫu bảng Order}
+    \end{center} 
+    Năm đơn hàng được tạo ra thuộc về ba Buyer khác nhau. Các đơn hàng được khởi tạo với tổng giá trị và trạng thái thanh toán “Pending”. Dữ liệu thời gian được chèn bằng NOW() để mô phỏng đơn hàng mới. Số lượng đơn hàng cho mỗi Buyer đủ để kiểm thử trigger không cho phép xóa Buyer khi vẫn còn đơn hàng tồn tại.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/orderunit1.png}\\
+        \textbf{Bảng OrderUnit}
+    \end{center} 
+    OrderUnit là đơn vị chia nhỏ của Order theo từng cửa hàng. UnitID là khóa chính, OrderID và StoreID là khóa ngoại. Trạng thái của Unit được kiểm soát qua CHECK với các trạng thái Processing, Shipping, Completed và Cancelled. Bảng này đóng vai trò quan trọng vì là điểm liên kết giữa đơn hàng, quá trình giao hàng và sản phẩm.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/orderline1.png}\\
+        \textbf{Bảng OrderLine}
+    \end{center} 
+    ORDER\_LINE mô tả chi tiết từng sản phẩm trong Unit. LineID là khóa chính, UnitID và ProductVariantID là khóa ngoại. Các thuộc tính UnitPrice, Discount và Quantity đều có ràng buộc kiểm tra giá trị nhằm bảo đảm tính chính xác trong tính toán tài chính.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/orderunit2.png}\\
+        \textbf{Dữ liệu mẫu bảng OrderUnit}
+    \end{center} 
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/orderline2.png}\\
+        \textbf{Dữ liệu mẫu bảng OrderLine}
+    \end{center} 
+    Mỗi đơn hàng được chia thành các OrderUnit theo từng cửa hàng khác nhau. Các Unit có trạng thái Processing, Shipping, Completed hoặc Cancelled đúng với luồng xử lý thực tế. Các mặt hàng trong từng Unit được mô tả qua bảng ORDER\_LINE, bao gồm giá đơn vị, discount và số lượng, đảm bảo tính đầy đủ trong kiểm thử tính tổng tiền đơn hàng.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/paytrans1.png}\\
+        \textbf{Bảng PaymentTransaction}
+    \end{center} 
+    Bảng PAYMENT\_TRANSACTION ghi nhận giao dịch thanh toán của từng đơn hàng. TransactionID là khóa chính, còn OrderID, BuyerID và MethodID lần lượt là khóa ngoại tham chiếu đúng các bảng Order, Buyer và PAYMENT\_METHOD. Trường CreatedAt tự động lưu thời điểm giao dịch. Mặc dù không có trigger riêng, ba khóa ngoại bảo đảm giao dịch chỉ được tạo khi đơn hàng, người mua và phương thức thanh toán đều hợp lệ.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/paytrans2.png}\\
+        \textbf{Dữ liệu mẫu bảng PaymentTransaction}
+    \end{center}    
+    Bảng PAYMENT\_TRANSACTION đóng vai trò ghi nhận thông tin thanh toán cho từng đơn hàng. Mỗi bản ghi xác định phương thức thanh toán mà Buyer đã sử dụng khi tạo đơn, thời điểm thanh toán và liên kết trực tiếp với OrderID, BuyerID và MethodID. Trong bộ dữ liệu mẫu, năm giao dịch thanh toán được tạo ra để bao phủ đầy đủ các tình huống nghiệp vụ khác nhau. Các giao dịch này được gán cho năm đơn hàng tương ứng và sử dụng nhiều phương thức thanh toán khác nhau như thẻ tín dụng, ví điện tử hoặc COD, từ đó hỗ trợ kiểm thử đầy đủ luồng xử lý thanh toán.\\
+    \\
+    Việc chèn dữ liệu mẫu đảm bảo ba điều kiện quan trọng của Payment Transaction: thứ nhất, BuyerID phải đúng với Buyer đã tạo đơn hàng tương ứng trong bảng Order; thứ hai, phương thức thanh toán (MethodID) phải thuộc về Buyer đó theo đúng ràng buộc khóa ngoại; và thứ ba, mỗi giao dịch đều được tạo với thời điểm thanh toán mặc định CURRENT\_TIMESTAMP, phản ánh quá trình thanh toán diễn ra ngay khi đơn hàng được khởi tạo. Nhờ vậy, dữ liệu mẫu giúp hệ thống có thể kiểm thử đồng thời tính toàn vẹn tham chiếu và các quy tắc nghiệp vụ liên quan đến xử lý thanh toán.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/shipm1.png}\\
+        \textbf{Bảng Shipment}
+    \end{center}  
+    SHIPMENT lưu thông tin vận chuyển. ShipmentID là khóa chính, UnitID là khóa ngoại. Trạng thái giao hàng được kiểm soát bởi CHECK. Ràng buộc nhằm bảo đảm chỉ được tạo vận đơn cho Unit đang ở trạng thái Processing. Event SQL được dùng để tự động đánh dấu các lô hàng “On the way” quá 15 ngày thành “Failed”.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/shipm2.png}\\
+        \textbf{Dữ liệu mẫu bảng Shipment}
+    \end{center} 
+    SHIPMENT được khởi tạo nhằm mô phỏng nhiều tình huống giao hàng như Delivered, On the way hoặc Cancelled. Mỗi UnitID có một vận đơn tương ứng với thời điểm dự kiến giao hàng. Timeline được lưu ở dạng JSON mô phỏng quá trình vận chuyển. Dữ liệu này phục vụ kiểm thử trigger không cho tạo vận đơn nếu Unit chưa ở trạng thái Processing, và kiểm thử event tự động đánh dấu các đơn bị treo quá 15 ngày.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/review0.png}\\
+        \textbf{Bảng REVIEW, REVIEW\_IMAGES và REVIEW\_VIDEO}
+    \end{center} 
+    REVIEW chứa đánh giá của Buyer về Product. ReviewID là khóa chính, BuyerID và ProductID là khóa ngoại. Rating phải nằm trong khoảng từ 1 đến 5. Ngoài ra sẽ có ràng buộc nhằm xác minh rằng người mua chỉ được đánh giá sản phẩm sau khi đơn hàng hoàn tất, phản ánh đúng logic của hệ thống thương mại. Ràng buộc ngữ nghĩa ở đây cấm chỉnh sửa đánh giá sau 7 ngày.\\
+    \\
+    Hai bảng REVIEW\_IMAGES và REVIEW\_VIDEO lưu URL ảnh và video của đánh giá, mỗi bảng dùng khóa chính tự tăng và khóa ngoại tham chiếu Review.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/review1.png}\\
+        \textbf{Dữ liệu mẫu bảng REVIEW}
+    \end{center} 
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/review2.png}\\
+        \textbf{Dữ liệu mẫu bảng REVIEW\_IMAGES }
+    \end{center} 
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/review3.png}\\
+        \textbf{Dữ liệu mẫu bảng REVIEW\_VIDEO}
+    \end{center} 
+    Một đánh giá hợp lệ được tạo cho Buyer đã nhận hàng thành công. Bảng REVIEW\_IMAGES và REVIEW\_VIDEO lưu lại tối đa năm hình ảnh và video minh họa cho bài đánh giá. Dữ liệu này nhằm kiểm chứng trigger chỉ cho phép đánh giá sau khi đơn hàng hoàn tất, đồng thời ngăn chặn chỉnh sửa bài đánh giá sau bảy ngày.
+    
+    %========================================================================================
+    \subsubsection{Kiểm thử tính đúng đắn của hệ thống}
+    Sau khi hoàn tất quá trình tạo bảng và chèn dữ liệu, hệ thống được kiểm tra bằng các truy vấn thống kê nhằm đảm bảo mỗi bảng đều có dữ liệu và các ràng buộc hoạt động đúng. Nhiều tình huống kiểm thử lỗi được mô phỏng, chẳng hạn như thử xóa phương thức thanh toán cuối cùng, di chuyển biến thể duy nhất của sản phẩm hoặc tạo đánh giá khi chưa nhận hàng. Kết quả cho thấy hệ thống từ chối các thao tác vi phạm đúng như kỳ vọng, chứng minh tính chính xác của các ràng buộc được xây dựng.\\
+    \\
+    Ngoài ra, dữ liệu trong các bảng chức năng như Order, OrderUnit và Shipment được đối chiếu để đảm bảo sự nhất quán giữa trạng thái giao hàng và trạng thái đơn hàng. Việc sử dụng Event SQL để tự động cập nhật trạng thái vận đơn sau 15 ngày cũng giúp mô phỏng tốt quy trình xử lý đơn thực tế.\\
+
+    %========================================================================================
+   \subsubsection{Kết luận}
+    Phần 1 của bài tập lớn đã hoàn thành đầy đủ và chính xác yêu cầu của đề bài. Toàn bộ cơ sở dữ liệu đã được hiện thực hóa dựa trên mô hình đã thiết kế ở BTL1, bao gồm hệ thống bảng phong phú với đầy đủ ràng buộc khóa chính, khóa ngoại, ràng buộc dữ liệu và ràng buộc ngữ nghĩa. Việc kết hợp các cơ chế CHECK, UNIQUE, REGEXP cùng với Trigger giúp đảm bảo rằng dữ liệu luôn nhất quán và phản ánh đúng logic nghiệp vụ của một nền tảng thương mại điện tử.\\
+    \\
+    Bộ dữ liệu mẫu được xây dựng công phu, đa dạng, đáp ứng yêu cầu tối thiểu về số dòng và hỗ trợ hữu hiệu cho công tác thử nghiệm. Hệ thống sau khi kiểm thử cho thấy vận hành ổn định, các ràng buộc ngữ nghĩa hoạt động chính xác, sẵn sàng cho các phần tiếp theo của bài tập lớn như xây dựng truy vấn và tầng ứng dụng.
+\subsection{Viết các trigger, thủ tục, hàm}
+    \subsubsection{Thủ tục Insert – Update – Delete và các kiểm tra ràng buộc dữ liệu}
+    \paragraph{Bảng: User}
+    \textbf{a. Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/1.png}
+    \end{center} 
+    Mô tả:  Thủ tục sp\_User\_Insert được xây dựng nhằm mục đích khởi tạo một tài khoản người dùng chung. Đây là thực thể cha, làm cơ sở để chuyên biệt hóa thành người mua (buyer) hoặc người bán (seller).\\
+    Các bước kiểm tra ràng buộc:\\
+    - Kiểm tra định dạng: Đảm bảo email tuân thủ đúng định dạng (example@domain.com) và SĐT tuân thủ đúng định dạng (10 số, bắt đầu bằng 0).\\
+    - Kiểm tra tính duy nhất : Đảm bảo email không được trùng lặp với bất kỳ tài khoản nào khác đã có trong hệ thống và SĐT không được trùng lặp.\\
+    - Kiểm tra miền giá trị : Vai trò phải là 'Buyer' hoặc 'Seller' và trạng thái (status) phải thuộc danh sách hợp lệ ('Active', 'Inactive', 'Banned').\\
+    Khi sử dụng email và SĐT hợp lệ thì sẽ insert vào bảng như sau:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/2.png}
+    \end{center} 
+    Khi sử dụng email đã tồn tại trong hệ thống sẽ báo ra lỗi:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/3.png}
+    \end{center} 
+    \textbf{b. Thủ tục Update}
+     \begin{center}
+        \includegraphics[scale=0.8]{Picture/4.png}
+    \end{center} 
+    Mô tả: Thủ tục sp\_User\_Update cho phép cập nhật các thông tin cơ bản của một tài khoản User đã tồn tại, như thông tin liên lạc hoặc trạng thái.\\
+    Thủ tục đảm bảo tính nhất quán của dữ liệu thông qua các bước kiểm tra:\\
+    - Kiểm tra tham chiếu: Xác thực UserID (Mã người dùng) cần sửa phải thực sự tồn tại trong hệ thống.\\
+    - Kiểm tra tính duy nhất (Uniqueness): Khi cập nhật Email hoặc Phone, thủ tục kiểm tra để đảm bảo giá trị mới không bị trùng với một người dùng khác.\\
+    - Kiểm tra định dạng và miền giá trị: Tương tự như khi thêm mới, Email, Phone và Status phải tuân thủ đúng định dạng và miền giá trị cho phép.\\
+     \begin{center}
+        \includegraphics[scale=0.8]{Picture/5.png}
+    \end{center}   
+    \textbf{c. Thủ tục Delete}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/6.png}
+    \end{center}   
+    Mô tả: thủ tục sp\_User\_Delete chịu trách nhiệm xóa hoàn toàn một tài khoản người dùng ra khỏi hệ thống khi UserID đưa ra yêu cầu.\\
+    Mục đích của việc xóa User:\\
+    - Xóa User trong hệ thống Shopee dùng để loại bỏ một tài khoản không còn hoạt động, tài khoản bị khóa vĩnh viễn, hoặc tài khoản tạo nhầm.\\
+    - Khi User bị xóa, toàn bộ thông tin phụ thuộc như Buyer, Seller cũng bị xóa theo cơ chế ON DELETE CASCADE, giúp hệ thống giữ sạch dữ liệu thừa.\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/7.png}
+    \end{center}   
+    Kiểm tra ràng buộc: luôn được phép xóa khi UserID tồn tại và chỉ chặn khi UserID cung cấp không tồn tại. Khi User bị xóa, các bản ghi con liên quan cũng sẽ tự động bị xóa theo. Hơn nữa, việc xóa Buyer sẽ kích hoạt cascade để xóa PAYMENT\_METHOD, và trigger sẽ đảm bảo việc này thành công ngay cả khi Buyer chỉ có một phương thức thanh toán. 
+    \paragraph{Bảng: Buyer}
+    \textbf{a. Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/8.png}
+    \end{center}   
+    Mô tả: Thủ tục sp\_Buyer\_Insert dùng để "chuyên biệt hóa" một tài khoản User đã tồn tại thành một Buyer (Người mua). Thủ tục này không tạo User mới mà chỉ liên kết với một User có sẵn.\\
+    Các bước kiểm tra ràng buộc:\\
+    -   Kiểm tra tham chiếu: Đảm bảo UserID phải tồn tại trong bảng User.\\
+    -   Kiểm tra vai trò (Role): UserID được cung cấp phải có role là 'Buyer' trong bảng User.\\
+    -   Kiểm tra chuyên biệt hóa (Specialization): Đảm bảo UserID này chưa tồn tại trong bảng Seller. Một User không thể vừa là Buyer vừa là Seller. \\
+    -   Kiểm tra tính duy nhất (Uniqueness): Đảm bảo UserID này chưa được thêm vào bảng Buyer trước đó.\\
+    \textbf{b. Thủ tục Delete}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/9.png}
+    \end{center}   
+    Mô tả: thủ tục sp\_Buyer\_Delete dùng để xóa hồ sơ Buyer của một người dùng mà không xóa tài khoản User gốc.\\
+    Mục đích xóa Buyer: khi người dùng chuyển vai trò, ngừng sử dụng tài khoản mua hàng hoặc cần xóa dữ liệu lập trình kiểm thử, việc xóa Buyer giúp đảm bảo hệ thống không tồn tại dữ liệu dư thừa không còn được sử dụng.\\
+    Kiểm tra ràng buộc: Hệ thống không cho phép xóa Buyer nếu BuyerID không tồn tại trong bảng Buyer. Đây là điều kiện duy nhất chặn việc xóa hồ sơ Buyer, nhằm đảm bảo việc xóa chỉ áp dụng cho các bản ghi hợp lệ. Khi Buyer bị xóa, tất cả các PAYMENT\_METHOD liên kết với BuyerID đó sẽ tự động bị xóa theo.\\
+    \paragraph{Bảng: Seller}
+    \textbf{a. Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/10.png}
+    \end{center}  
+    Mô tả: Thủ tục sp\_Seller\_Insert dùng để "chuyên biệt hóa" một tài khoản User thành Seller và ghi nhận thông tin định danh. Tương tự như Buyer, thủ tục này thực thi các kiểm tra chuyên biệt hóa nghiêm ngặt.\\
+    Các bước kiểm tra ràng buộc:\\
+    - Kiểm tra tham chiếu: Đảm bảo UserID phải tồn tại trong bảng User.\\
+    - Kiểm tra vai trò (Role): UserID được cung cấp phải có Role là 'Seller' trong bảng User.\\
+    - Kiểm tra chuyên biệt hóa (Specialization): Đảm bảo UserID này chưa tồn tại trong bảng Buyer .\\
+    - Kiểm tra tính duy nhất (Uniqueness): Đảm bảo UserID này chưa được thêm vào bảng Seller trước đó.\\
+    - Kiểm tra miền giá trị (Domain): Trạng thái định danh phải là 'Pending', 'Approved', hoặc 'Rejected'.\\
+    \textbf{Thủ tục Update}    
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/11.png}
+    \end{center} 
+    Mô tả: Thủ tục sp\_Seller\_Update cho phép cập nhật thông tin của Seller, chủ yếu phục vụ cho nghiệp vụ duyệt định danh của Admin hoặc khi người bán thay đổi tài khoản ngân hàng.
+    Kiểm tra tham chiếu: Xác thực SellerID cần sửa phải tồn tại.\\
+    Kiểm tra miền giá trị: Đảm bảo KYCStatus mới vẫn nằm trong miền giá trị cho phép ('Pending', 'Approved', 'Rejected').\\
+    \textbf{c. Thủ tục Delete}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/12.png}
+    \end{center} 
+    Mô tả: Thủ tục sp\_Seller\_Delete dùng để xóa hồ sơ Seller của một người dùng mà không xóa tài khoản User gốc.\\
+    Mục đích xóa Seller:\\
+    - Xóa Seller khi người bán ngừng kinh doanh, yêu cầu đóng tài khoản hoặc khi cần dọn dữ liệu test.\\
+    - Điều này giúp đảm bảo hệ thống không giữ lại các cửa hàng hoặc sản phẩm không còn hoạt động.\\
+    Kiểm tra ràng buộc: thủ tục sẽ bị chặn nếu Seller này vẫn còn sở hữu Store và nếu SellerID không tồn tại trong hệ thống. Người dùng phải xóa Store trước (vì Store là bảng con của Seller theo CSDL gốc của bạn). Chỉ được xóa khi SellerID tồn tại và không còn Store nào liên kết.
+    \paragraph{Bảng Product}
+    \textbf{a. Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/13.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/14.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_Insert\_Product được xây dựng nhằm mục đích khởi tạo một hồ sơ sản phẩm mới (sản phẩm cha) vào hệ thống, làm cơ sở để thêm các biến thể sau này. \\
+    Các bước kiểm tra ràng buộc:\\
+    - Kiểm tra tham chiếu: Đảm bảo StoreID (Mã cửa hàng) phải tồn tại trong bảng Store, xác định rõ sản phẩm này thuộc về người bán nào.\\
+    - Kiểm tra tính hợp lệ của dữ liệu: Tên sản phẩm (Title) không được phép để trống và bắt buộc phải có độ dài tối thiểu 5 ký tự để đảm bảo tên gọi rõ nghĩa, tránh tình trạng spam dữ liệu rác.\\
+    - Kiểm tra miền giá trị: Trạng thái sản phẩm (Status) bắt buộc phải thuộc danh sách quy định của hệ thống (gồm: 'Available', 'Out of Stock', 'Inactive', 'Banned'), ngăn chặn việc nhập sai chính tả hoặc nhập trạng thái không hỗ trợ \\
+    Kiểm tra: 
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/15.png}
+    \end{center}
+    Nhận xét: Sau khi thêm thành công đã tự động cập nhật vô bảng\\
+    \textbf{Thủ tục Update}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/16.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_Update\_Product cho phép cập nhật các thông tin chung của sản phẩm như tên gọi, mô tả chi tiết và trạng thái kinh doanh. Thủ tục đảm bảo tính nhất quán của dữ liệu thông qua các chốt chặn kiểm tra:\\
+    - Kiểm tra tham chiếu: Xác thực mã sản phẩm (ProductID) cần sửa phải thực sự tồn tại trong hệ thống. \\
+    - Kiểm tra logic cập nhật: Tương tự như khi thêm mới, tên sản phẩm sau khi sửa cũng phải đảm bảo độ dài tối thiểu và trạng thái mới phải nằm trong miền giá trị cho phép.\\
+    - Bảo toàn quan hệ sở hữu: Thủ tục chỉ cho phép sửa thông tin mô tả, không cho phép thay đổi StoreID, đảm bảo một sản phẩm khi đã tạo ra thì gắn liền với cửa hàng đó, không thể chuyển nhượng trái phép sang cửa hàng khác.\\
+    Kiểm tra:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/17.png}
+    \end{center}
+    Nhận xét: Cập nhật lại trạng thái sản phẩm thành công\\
+    \textbf{Thủ tục Delete}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/18.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/19.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_Delete\_Product chịu trách nhiệm loại bỏ hoàn toàn một sản phẩm khỏi danh sách bán hàng. Tuy nhiên, để bảo vệ tính toàn vẹn của dữ liệu lịch sử và báo cáo tài chính, thủ tục áp dụng quy tắc nghiệp vụ nghiêm ngặt sau:\\
+    - Kiểm tra ràng buộc lịch sử giao dịch: Trước khi xóa, hệ thống thực hiện truy vấn quét toàn bộ các đơn hàng (ORDER\_LINE) liên quan đến tất cả các biến thể của sản phẩm này. Nếu phát hiện sản phẩm đã từng được bán (tồn tại trong lịch sử đơn hàng), thủ tục sẽ CHẶN XÓA và thông báo lỗi.\\
+    - Mục đích: Cơ chế này giúp ngăn chặn việc xóa nhầm các sản phẩm đã có doanh thu, gây sai lệch dữ liệu đơn hàng cũ của khách hàng. (Trong trường hợp này, hệ thống khuyến nghị người dùng nên chuyển trạng thái sang Inactive thay vì xóa vĩnh viễn).\\
+    -Cơ chế tự động (Cascade): Nếu sản phẩm chưa từng phát sinh giao dịch và thỏa mãn điều kiện xóa, hệ thống sẽ xóa sản phẩm cha, đồng thời các dữ liệu con liên quan (Biến thể, Hình ảnh, Video) cũng sẽ được tự động dọn dẹp theo.\\
+    Mục đích xóa Product:\\
+    -Xóa Product dùng cho trường hợp người bán ngừng cung cấp mặt hàng, sản phẩm không hợp pháp hoặc dữ liệu test được tạo nhầm.\\
+    -Xóa Product giúp hệ thống giữ sạch danh mục và giảm rủi ro hiển thị nhầm sản phẩm đã ngừng kinh doanh.\\
+    Kiểm tra: \\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/20.png}
+    \end{center}
+    Nhận xét: Xóa sản phẩm Product ID 13 thành công.
+    \paragraph{Order}
+    \textbf{a. Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/21.png}
+    \end{center}
+    Mô tả: Thủ tục InsertOrder được thiết kế để tạo mới một đơn hàng (Order) cho Buyer khi người dùng tiến hành đặt hàng.\\ 
+    Các bước kiểm tra ràng buộc:\\
+    -Kiểm tra tham chiếu: BuyerID phải tồn tại → đảm bảo đơn hàng thuộc về người mua hợp lệ.\\
+    -Kiểm tra giá trị: TotalPrice phải $\geq$ 0, Discount có thể null nhưng nếu có phải hợp lệ \\
+    -Kiểm tra miền giá trị: PaymentStatus phải nằm trong danh sách quy định (‘Pending’, ‘Paid’, ‘Failed’, ‘Refunded’).\\
+    Kiểm tra: 
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/22.png}
+    \end{center}
+    \textbf{ b. Thủ tục Update}
+     \begin{center}
+        \includegraphics[scale=0.8]{Picture/23.png}
+    \end{center}
+    Mô tả: Thủ tục UpdateOrderStatus dùng để thay đổi trạng thái thanh toán của một đơn hàng.
+    Các kiểm tra được thực hiện: OrderID phải có trong hệ thống và PaymentStatus phải nằm trong danh sách hợp lệ.\\
+    Kiểm tra:
+     \begin{center}
+        \includegraphics[scale=0.8]{Picture/24.png}
+    \end{center}
+    \textbf{Thủ tục Delete}
+    Mô Tả: Thủ tục DeleteOrder được dùng để xóa đơn hàng khỏi hệ thống. Tuy nhiên, việc xóa chỉ được phép khi đơn hàng không còn phụ thuộc.\\
+    -Kiểm tra tồn tại: OrderID phải có trong bảng Order\\
+    -Kiểm tra ràng buộc toàn vẹn: Không được xóa Order nếu tồn tại OrderUnit liên quan → tránh xóa đơn hàng trong khi đơn vị xử lý vẫn hoạt động.\\
+    Mục đích xóa:\\
+    -Dọn các đơn tạo nhầm, đơn test, hoặc đơn bị hủy trước khi phân chia sang các cửa hàng.
+    -Giúp hệ thống giảm dữ liệu rác và giữ tính sạch trong các bảng vận hành.\\
+    Kiểm tra:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/25.png}
+    \end{center}
+    \paragraph{OrderLine}
+    \textbf{Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/26.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/27.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_AddOrderLine được xây dựng nhằm mục đích thêm một sản phẩm cụ thể vào một đơn hàng con (OrderUnit) đang trong quá trình xử lý. \\
+    Các bước kiểm tra ràng buộc:\\
+    -Kiểm tra tham chiếu và trạng thái: Xác thực UnitID phải tồn tại trong bảng OrderUnit và đơn hàng con đó phải đang ở trạng thái "Processing". Điều này ngăn chặn việc thay đổi nội dung đơn hàng khi nó đã được chuyển sang giai đoạn vận chuyển.\\
+    -Kiểm tra tồn kho: Đảm bảo ProductVariantID tồn tại và số lượng sản phẩm (Quantity) thêm vào không được vượt quá số lượng tồn kho (Stock) hiện có, tránh tình trạng bán hàng vượt quá khả năng cung cấp.\\
+    -Cập nhật tự động: Sau khi INSERT thành công, thủ tục sẽ tự động thực hiện hai tác vụ quan trọng: (1) Trừ số lượng tồn kho tương ứng trong bảng product\_variant; và (2) Gọi một thủ tục khác để tính toán lại tổng giá trị (TotalPrice) của đơn hàng cha (Order).\\
+    Kiểm tra:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/28.png}
+    \end{center}
+    Nhận xét: Sau khi thực thi, một dòng mới đã được thêm thành công vào ORDER\_LINE cho UnitID = 1. Tồn kho của ProductVariantID = 4 và TotalPrice của OrderID tương ứng đã được tự động cập nhật.\\
+    \textbf{Thủ tục Update}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/29.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/30.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_UpdateOrderLine cho phép điều chỉnh số lượng của một sản phẩm trong một dòng đơn hàng đã tồn tại. Để đảm bảo tính nhất quán và chính xác của dữ liệu, thủ tục thực thi các chốt chặn kiểm tra nghiêm ngặt trước khi cập nhật:\\
+    -Kiểm tra tham chiếu và trạng thái: Xác thực mã dòng đơn hàng (LineID) phải tồn tại trong hệ thống. Quan trọng hơn, thủ tục kiểm tra và chỉ cho phép sửa đổi khi đơn hàng con (OrderUnit) liên quan đang ở trạng thái "Processing", ngăn chặn mọi thay đổi sau khi đơn hàng đã được xác nhận xử lý.\\
+    -Kiểm tra logic cập nhật: Thủ tục yêu cầu số lượng mới phải là số dương. Trong trường hợp tăng số lượng, hệ thống sẽ tính toán lượng chênh lệch và kiểm tra với số lượng tồn kho (Stock) hiện tại của sản phẩm để đảm bảo không xảy ra tình trạng bán hàng vượt kho.\\
+    -Cập nhật tự động: Sau khi lệnh UPDATE được thực thi thành công, thủ tục sẽ tự động điều chỉnh lại số lượng tồn kho trong bảng product\_variant và gọi một thủ tục phụ (sp\_RecalculateOrderTotal) để tính toán lại tổng giá trị của đơn hàng cha, đảm bảo dữ liệu luôn được đồng bộ\\
+    Kiểm tra:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/31.png}
+    \end{center}
+    Nhận xét: Lệnh gọi thủ tục thực thi thành công. Cột Quantity của LineID = 6 đã được cập nhật chính xác từ 1 lên 3. Số lượng tồn kho của sản phẩm tương ứng và tổng giá trị đơn hàng cha cũng đã được hệ thống tự động điều chỉnh lại.\\
+    \textbf{ Thủ tục Delete}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/32.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_DeleteOrderLine thực hiện việc loại bỏ hoàn toàn một dòng sản phẩm (Order Line) khỏi một đơn hàng con (OrderUnit). Việc xóa chỉ được phép khi đơn hàng con vẫn còn trong giai đoạn xử lý (Processing). Thủ tục đồng thời thực hiện các tác vụ tự động như hoàn trả tồn kho, xóa OrderUnit nếu rỗng và cập nhật lại tổng tiền của đơn hàng gốc.\\
+    -Mục đích xóa:\\
+    +Mục đích của thao tác xóa OrderLine là cho phép người bán hoặc quản trị viên chỉnh sửa các sai sót trong giai đoạn xử lý đơn hàng, chẳng hạn như thêm nhầm sản phẩm, nhập sai số lượng, hoặc khách hàng thay đổi lựa chọn trước khi đơn hàng được xác nhận.\\
+    +Cơ chế này đảm bảo rằng việc chỉnh sửa chỉ diễn ra khi đơn hàng chưa chuyển sang các trạng thái cao hơn (Shipping, Completed), nhằm bảo vệ lịch sử giao dịch.\\
+    +Các thay đổi sau khi đơn đã xử lý phải tuân theo các nghiệp vụ riêng như trả hàng hoặc hoàn tiền, thay vì xóa dòng đơn hàng trực tiếp.\\
+    Kiểm tra:
+    -Chỉ được xóa nếu OrderUnit đang ở trạng thái Processing. Nếu không, thủ tục chặn xóa để bảo toàn tính toàn vẹn dữ liệu. Khi xóa thành công, số lượng sản phẩm trong OrderLine được cộng trả lại vào tồn kho của biến thể sản phẩm tương ứng.\\
+    -Nếu OrderUnit không còn dòng sản phẩm nào sau khi xóa, thủ tục tự động xóa OrderUnit để tránh tồn tại dữ liệu rỗng.\\
+    -Sau khi xóa, hệ thống tính toán và cập nhật lại TotalPrice của đơn hàng gốc nhằm bảo đảm thông tin luôn chính xác.
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/33.png}
+    \end{center}
+    Nhận xét:Lệnh gọi thủ tục thực thi thành công. Dòng dữ liệu có LineID = 6 đã bị xóa hoàn toàn khỏi bảng ORDER\_LINE. Số lượng tồn kho của sản phẩm đã được hoàn trả và tổng giá trị đơn hàng được tính toán lại chính xác.\\
+    \paragraph{Cart}
+    \textbf{Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/34.png}
+    \end{center}
+    Mô tả:  Thủ tục InsertCart được thiết kế nhằm mục đích tạo mới một giỏ hàng (Cart) trong hệ thống cho một người mua (Buyer).
+    -Các bước kiểm tra ràng buộc:
+    +Kiểm tra tham chiếu : BuyerID phải nằm trong bảng Buyer -> Giúp đảm bảo giỏ hàng chỉ được tạo cho người dùng hợp lệ
+    Kiểm tra:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/35.png}
+    \end{center}
+    \textbf{ Thủ tục Update}
+     \begin{center}
+        \includegraphics[scale=0.8]{Picture/36.png}
+    \end{center}
+    Mô tả: Thủ tục UpdateCart được thiết kế để thay đổi Buyer sở hữu một Cart.\\
+    Trước khi cập nhật, thủ tục thực hiện các bước kiểm tra nhằm đảm bảo tính thống nhất dữ liệu. Điều kiện để validate là:\\
+    -Cart phải tồn tại\\
+    -Buyer mới phải tồn tại\\
+    -Buyer mới không được có cart khác\\
+    -Khi hợp lệ hết tất cả mới được Update\\
+    Kiểm tra:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/37.png}
+    \end{center}
+
+    \textbf{ Thủ tục Delete}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/38.png}
+    \end{center}
+    Mô tả:  Thủ tục DeleteCart được sử dụng để xóa toàn bộ một giỏ hàng (Cart) khỏi hệ thống. Trước khi xóa, hệ thống kiểm tra sự tồn tại của Cart và đảm bảo rằng giỏ hàng không chứa bất kỳ CartItem nào.\\
+    Mục đích:  Việc xóa Cart nhằm dọn dẹp dữ liệu khi giỏ hàng không còn được sử dụng, giỏ hàng bị tạo nhầm hoặc giỏ hàng trở nên trống sau khi người dùng hủy phiên đăng nhập hoặc xóa tài khoản. Điều này giúp cơ sở dữ liệu tránh lưu các giỏ hàng rác, cải thiện hiệu suất và tính sạch của dữ liệu.
+
+    \paragraph{CartItem}
+    \textbf{Thủ tục Insert}
+    
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/39.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/40.png}
+    \end{center}
+
+    Mô tả: Thủ tục InsertCartItem được thiết kế nhằm mục đích thêm một sản phẩm (variant) vào giỏ hàng của người dùng.\\
+    Các bước kiểm tra ràng buộc:\\
+    Kiểm tra tham chiếu: CartID phải tồn tại trong bảng Cart và ProductVariantID phải tồn tại trong bảng product\_variant\\
+    Kiểm tra dữ liệu: Quantity phải lớn hơn 0 để đảm bảo giá trị hợp lệ
+    Kiểm tra:
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/41.png}
+    \end{center}
+
+    \textbf{Thủ tục Update}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/42.png}
+    \end{center}
+    Mô tả:  Thủ tục UpdateCartItem được xây dựng để điều chỉnh số lượng sản phẩm trong giỏ hàng. Trước khi thực hiện UPDATE, thủ tục kiểm tra : \\
+    Kiểm tra tồn tại: CartItem (CartID + ProductVariantID) phải tồn tại.\\
+    Kiểm tra dữ liệu: Quantity phải lớn hơn 0 -> đảm bảo số lượng hợp lệ\\
+    Kiểm tra:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/43.png}
+    \end{center}
+
+    \textbf{Thủ tục Delete}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/44.png}
+    \end{center}
+    Mô tả: Thủ tục DeleteCartItem thực hiện xóa một sản phẩm (variant) ra khỏi giỏ hàng của người dùng dựa trên cặp (CartID, ProductVariantID).\\
+    Mục đích: Giúp người dùng chỉnh sửa giỏ hàng theo nhu cầu thực tế, loại bỏ sản phẩm không muốn mua, tránh tính tiền sai hoặc tránh lưu trữ sản phẩm lỗi thời trong giỏ hàng.\\
+    Kiểm tra ràng buộc: chỉ cho phép xóa khi CartItem tồn tại đúng với cặp CartID – ProductVariantID; hệ thống sẽ tự động chặn nếu CartItem không tồn tại để tránh thao tác xóa sai và bảo toàn tính nhất quán dữ liệu.\\
+    Kiểm tra:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/45.png}
+    \end{center}
+
+    \paragraph{Store}
+    \textbf{Thủ tục Insert}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/46.png}
+    \end{center}
+
+    Mô tả :Thủ tục InsertStore được xây dựng nhằm mục đích thêm mới một cửa hàng vào hệ thống, liên kết trực tiếp với một người bán (Seller). \\
+    Các bước kiểm tra ràng buộc:\\
+    Kiểm tra tham chiếu: Xác nhận SellerID phải tồn tại trong bảng Seller để đảm bảo cửa hàng được gắn đúng với người bán hợp lệ.\\
+    Kiểm tra tính hợp lệ dữ liệu: Các trường thông tin bắt buộc như Name, Brand, BrandProfile, ReturnPolicy, Status đều không được NULL nhằm tránh dữ liệu thiếu hoàn chỉnh.\\
+    Kiểm tra miền giá trị: Trạng thái cửa hàng (Status) chỉ được phép nhận giá trị 'Active' hoặc 'Inactive', ngăn chặn nhập sai chính tả hoặc sai quy định.\\
+    Sau khi vượt qua toàn bộ kiểm tra, cửa hàng sẽ được thêm mới vào hệ thống.\\
+    Kiểm tra:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/47.png}
+    \end{center}
+
+    Nhận xét: Dữ liệu cửa hàng được thêm mới và hiển thị đúng trong bảng Store, đảm bảo toàn bộ ràng buộc được tuân thủ.
+
+    \textbf{Thủ tục Update}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/48.png}
+    \end{center}
+    Mô tả: Thủ tục UpdateStore cho phép người dùng cập nhật thông tin của một cửa hàng đang tồn tại. Để đảm bảo tính nhất quán dữ liệu, thủ tục áp dụng các cơ chế kiểm tra sau:\\
+    Kiểm tra sự tồn tại: StoreID cần cập nhật phải thực sự tồn tại trong hệ thống.\\
+    Kiểm tra dữ liệu bắt buộc: Các trường Name, Brand, BrandProfile, ReturnPolicy và Status phải có giá trị đầy đủ, tránh tình trạng ghi đè dữ liệu bằng NULL.\\
+    Kiểm tra miền giá trị: Trạng thái cửa hàng được cập nhật phải thuộc danh sách cho phép ('Active', 'Inactive').\\
+    Thủ tục đảm bảo chỉ cập nhật thông tin mô tả, không làm thay đổi SellerID đã gắn liền với cửa hàng.
+    Kiểm tra:\\
+    Trước khi test\\
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/49.png}
+    \end{center}
+    Sau khi test\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/50.png}
+    \end{center}
+    Nhận xét: Thông tin cửa hàng được cập nhật thành công sau khi vượt qua các ràng buộc.
+
+    \textbf{Thủ tục Delete}
+    
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/51.png}
+    \end{center}
+
+    Mô tả: Thủ tục DeleteStore được dùng để xóa một cửa hàng khi cửa hàng không còn sản phẩm nào đang được quản lý trong hệ thống.\\
+    Mục đích: Dùng để loại bỏ các cửa hàng đã ngừng kinh doanh, cửa hàng bị khóa hoặc cửa hàng tạo nhầm; giúp danh sách cửa hàng rõ ràng, đảm bảo dữ liệu gọn và đúng thực tế.\\
+    Kiểm tra ràng buộc: chỉ cho phép xóa khi StoreID tồn tại và cửa hàng không còn bất kỳ sản phẩm nào trong bảng Product; hệ thống sẽ tự động chặn nếu StoreID không tồn tại hoặc nếu cửa hàng vẫn còn sản phẩm, nhằm bảo toàn dữ liệu liên kết.\\
+    Kiểm tra:\\
+    Trường hợp nếu Store không còn product:\\
+    Trước khi xóa:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/52.png}
+    \end{center}
+    Sau khi xóa:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/53.png}
+    \end{center}
+    Trường hợp nếu Store còn product:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/54.png}
+    \end{center}
+    Trước khi xóa:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/55.png}
+    \end{center}
+    Sau khi xóa:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/56.png}
+    \end{center}
+
+    Nhận xét: Cửa hàng được xóa đúng quy tắc. Trường hợp còn Product đã bị hệ thống từ chối và thông báo đúng lỗi.
+
+    \paragraph{Category}
+    \textbf{Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/57.png}
+    \end{center}
+    Mô tả Thủ tục InsertCategory được thiết kế để thêm mới một danh mục vào hệ thống. \\
+    Các bước thực hiện ràng buộc:\\
+    Kiểm tra tính bắt buộc: Tên danh mục (Name) không được phép NULL.\\
+    Kiểm tra tham chiếu cha – con: Nếu ParentCategoryID được cung cấp, ID này phải tồn tại trong bảng Category nhằm đảm bảo cấu trúc cây danh mục hợp lệ.
+    Sau khi đáp ứng đầy đủ yêu cầu, danh mục được thêm vào hệ thống.\\
+    Kiểm tra\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/58.png}
+    \end{center}
+    Nhận xét: Danh mục mới được tạo thành công và xuất hiện trong cây phân cấp.
+
+    \textbf{Thủ tục Update}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/59.png}
+    \end{center}
+
+    Mô tả: Thủ tục UpdateCategory hỗ trợ cập nhật tên và danh mục cha của một Category hiện có. Trước khi cập nhật, thủ tục chạy các bước kiểm tra:\\
+    Kiểm tra sự tồn tại: CategoryID phải có trong bảng Category.\\
+    Kiểm tra not-null: Tên mới của danh mục (Name) không được NULL.\\
+    Kiểm tra quan hệ cha hợp lệ: Nếu cập nhật ParentCategoryID, ID này phải tồn tại và không được trùng với chính CategoryID để đảm bảo không tạo vòng lặp.\\
+    Kiểm tra\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/60.png}
+    \end{center}
+
+    Nhận xét: Danh mục được cập nhật thành công và cấu trúc phân cấp vẫn hợp lệ.
+
+    \textbf{Thủ tục Delete}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/61.png}
+    \end{center}
+    Mô tả: Thủ tục DeleteCategory xóa một danh mục khỏi hệ thống khi danh mục đó không được sử dụng bởi bất kỳ sản phẩm nào.\\
+    Mục đích: Đảm bảo cấu trúc phân loại sản phẩm luôn rõ ràng, loại bỏ các danh mục bị sai, lỗi, trùng hoặc không còn sử dụng. Điều này giúp khách hàng duyệt danh mục chính xác hơn và giúp hệ thống gọn nhẹ.\\
+    Kiểm tra ràng buộc: chỉ cho phép xóa khi CategoryID tồn tại và danh mục không còn xuất hiện trong bảng Product\_Category; hệ thống sẽ tự động chặn nếu CategoryID không tồn tại hoặc nếu danh mục vẫn đang liên kết với sản phẩm, nhằm đảm bảo không tạo ra liên kết rỗng trong dữ liệu.\\
+    Kiểm tra:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/62.png}
+    \end{center}
+    Nhận xét: Danh mục chỉ bị xóa khi không còn bất kỳ sản phẩm nào thuộc danh mục đó.
+
+    \paragraph{Product\_Variant}
+    \textbf{Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/63.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/64.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_Insert\_ProductVariant được xây dựng nhằm mục đích thêm mới một biến thể sản phẩm (như màu sắc, kích cỡ, cấu hình) vào hệ thống. \\
+    Các bước kiểm tra ràng buộc:\\
+    Kiểm tra tham chiếu: Đảm bảo ProductID phải tồn tại trong bảng Product.\\
+    Kiểm tra miền giá trị: Giá gốc (Price) phải lớn hơn 0 và số lượng tồn kho (Stock) không được là số âm.
+    Kiểm tra logic nghiệp vụ: Nếu có giá khuyến mãi (PromotePrice), giá này bắt buộc phải nhỏ hơn giá gốc để đảm bảo tính hợp lý trong kinh doanh.\\
+    Kiểm tra :\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/65.png}
+    \end{center}
+    Nhận xét : Thêm sản phẩm mẫu khác thành công.
+    \textbf{Thủ tục Update}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/66.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/67.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_Update\_ProductVariant cho phép cập nhật thông tin của một biến thể sản phẩm đã tồn tại (như thay đổi giá bán hoặc cập nhật số lượng tồn kho). Tương tự như thủ tục thêm mới, thủ tục cập nhật cũng thực hiện nghiêm ngặt các bước kiểm tra tính hợp lệ của dữ liệu trước khi ghi vào cơ sở dữ liệu:\\
+    Kiểm tra sự tồn tại: Đảm bảo mã biến thể (ProductVariantID) cần sửa phải thực sự tồn tại trong hệ thống.\\
+    Kiểm tra logic giá: Giá gốc mới phải là số dương. Nếu có cập nhật giá khuyến mãi, hệ thống sẽ kiểm tra để đảm bảo giá khuyến mãi luôn thấp hơn giá gốc.\\
+    Kiểm tra tồn kho: Đảm bảo số lượng tồn kho cập nhật không được là số âm, giữ cho dữ liệu kho hàng luôn chính xác thực tế.\\
+    Kiểm tra\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/68.png}
+    \end{center}
+    Nhận xét : Sau khi thực lệnh update chuyển Promote Price về null, bảng đã được cập nhật thành côngNhận xét : Sau khi thực lệnh update chuyển Promote Price về null, bảng đã được cập nhật thành công.
+
+    \textbf{Thủ tục Delete}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/69.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/70.png}
+    \end{center}
+
+    Mô tả: Thủ tục sp\_Delete\_ProductVariant xóa một biến thể sản phẩm khi biến thể đó không phải biến thể cuối cùng và chưa từng xuất hiện trong các dòng đơn hàng (ORDER\_LINE).\\
+    Mục đích: Dùng để xóa các biến thể lỗi, biến thể nhập sai cấu hình (giá, stock), hoặc biến thể đã ngừng kinh doanh. Đồng thời bảo đảm rằng sản phẩm vẫn còn ít nhất một biến thể, tránh trường hợp sản phẩm bị “rỗng” thông tin.\\
+    Kiểm tra ràng buộc: chỉ cho phép xóa khi Product Variant ID tồn tại, sản phẩm cha vẫn còn hơn một biến thể, và biến thể chưa từng xuất hiện trong ORDER\_LINE; hệ thống sẽ tự động chặn nếu Product Variant ID không tồn tại, nếu đây là biến thể cuối cùng của sản phẩm, hoặc nếu biến thể đã từng được dùng trong đơn hàng, nhằm bảo toàn lịch sử và tính toàn vẹn dữ liệu.\\
+    Kiểm tra:\\
+    Trước khi xóa\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/71.png}
+    \end{center}
+    Sau khi xóa\\
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/72.png}
+    \end{center}
+    Nhận xét: Sau khi product\_varitant ID :28, trong bảng đã không còn xuất hiện
 
 
-%========================================================================================
-\subsection*{4.2. Hạn chế hiện tại}
-\addcontentsline{toc}{subsection}{4.2. Hạn chế hiện tại}
+    \paragraph{Review}
+    \textbf{Thủ tục Insert}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/73.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_AddReview được xây dựng để cho phép người dùng đăng tải một đánh giá mới cho một sản phẩm. \\
+    Các bước kiểm tra ràng buộc:\\
+    Xác thực giao dịch mua hàng: Đây là ràng buộc quan trọng nhất. Trước khi cho phép INSERT, thủ tục sẽ truy vấn qua các bảng Order, OrderUnit, và ORDER\_LINE để xác thực rằng người mua (BuyerID) đã thực sự đặt mua sản phẩm (ProductID) và đơn hàng đó đã ở trạng thái "Completed" (Đã giao thành công). Cơ chế này ngăn chặn tuyệt đối các đánh giá giả mạo hoặc spam từ những người chưa từng trải nghiệm sản phẩm.\\
+    Kiểm tra đánh giá trùng lặp: Thủ tục kiểm tra để đảm bảo một người mua chỉ có thể đánh giá một sản phẩm một lần duy nhất, tránh tình trạng một người dùng gửi nhiều đánh giá cho cùng một sản phẩm.
+    Kiểm tra miền giá trị: Điểm đánh giá (Rating) được kiểm tra để đảm bảo nó nằm trong khoảng hợp lệ từ 1 đến 5.\\
+    Kiểm tra:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/74.png}
+    \end{center}
+    Nhận xét: Xử lý trường hợp review khi đã có review trước đó
+    \textbf{Thủ tục Update}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/75.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_UpdateReview cho phép người dùng chỉnh sửa nội dung và điểm đánh giá mà họ đã đăng. Để đảm bảo tính công bằng và an ninh, thủ tục áp dụng các kiểm tra:\\
+    Kiểm tra sự tồn tại và quyền sở hữu: Thủ tục xác thực ReviewID phải tồn tại. Quan trọng hơn, nó kiểm tra để đảm bảo rằng người dùng đang thực hiện hành động (p\_BuyerID) chính là người đã tạo ra bài đánh giá gốc. Điều này ngăn chặn người dùng này sửa đổi đánh giá của người dùng khác.\\
+    Ràng buộc về thời gian: Một quy tắc nghiệp vụ quan trọng được áp dụng là giới hạn thời gian cho phép chỉnh sửa. Thủ tục sẽ CHẶN việc cập nhật nếu bài đánh giá đã được đăng quá 7 ngày. Cơ chế này đảm bảo tính nhất quán của các đánh giá, tránh việc người dùng thay đổi nhận xét sau một thời gian dài sử dụng vì những lý do không còn liên quan đến trải nghiệm ban đầu.\\
+    Kiểm tra miền giá trị: Điểm đánh giá mới (p\_NewRating) cũng được kiểm tra để đảm bảo nằm trong khoảng hợp lệ từ 1 đến 5.\\
+    Kiểm tra:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/76.png}
+    \end{center}
 
-%========================================================================================
-\subsection*{4.3. Định hướng phát triển}
-\addcontentsline{toc}{subsection}{4.3. Định hướng phát triển}
+    \textbf{Thủ tục Delete}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/77.png}
+    \end{center}
+    Mô tả: Thủ tục sp\_DeleteReview xóa một bài đánh giá cùng toàn bộ media của bài đánh giá khi người xóa là chính chủ bài viết.\\
+    Mục đích: Cho phép người dùng kiểm soát nội dung họ đã tạo, xóa các đánh giá đăng nhầm, sai thông tin hoặc không còn muốn công khai. Điều này giúp bảo vệ quyền riêng tư và đảm bảo thông tin phản hồi trên hệ thống luôn chính xác.\\
+    Kiểm tra ràng buộc: chỉ cho phép xóa khi ReviewID tồn tại và BuyerID của người thực hiện thao tác trùng với BuyerID của người đã tạo review; hệ thống sẽ tự động chặn nếu ReviewID không tồn tại hoặc nếu người thao tác không phải chủ sở hữu review, nhằm ngăn chặn việc xóa trái phép. Trước khi xóa bản ghi REVIEW, thủ tục sẽ xóa toàn bộ REVIEW\_IMAGES và REVIEW\_VIDEO liên quan, đảm bảo không còn media mồ côi trong cơ sở dữ liệu.\\
+    Kiểm tra:\\
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/78.png}
+    \end{center}
+    Nhận xét: Lệnh SELECT cuối cùng trả về một bảng rỗng (không có dòng dữ liệu nào). Điều này chứng tỏ bản ghi đánh giá đã được xóa thành công khỏi hệ thống, xác nhận thủ tục DELETE hoạt động chính xác.
+
+    \subsubsection{Trigger}
+    \paragraph{Trigger kiểm tra ràng buộc nghiệp vụ}
+    \paragraph{BẢNG ORDER – Ràng buộc: “Buyer có đơn hàng thì không được xóa Buyer” Ràng buộc nghiệp vụ}
+    Trong một hệ thống thương mại điện tử, thông tin lịch sử giao dịch của người mua (Buyer) có giá trị quan trọng đối với vận hành hệ thống, đối soát, phục vụ khách hàng, và lý do pháp lý. Vì vậy, khi một Buyer đã từng tạo đơn hàng, hệ thống không được phép xóa Buyer, nhằm đảm bảo tính toàn vẹn của dữ liệu và tránh thất thoát lịch sử mua bán.
+
+    Ràng buộc này không thể được kiểm soát bằng các cơ chế ràng buộc có sẵn như CHECK, UNIQUE hay FOREIGN KEY vì:
+
+    \begin{itemize}
+        \item \textbf{FOREIGN KEY}: chỉ có thể ngăn xóa Buyer nếu cấu hình \texttt{ON DELETE RESTRICT}. Tuy nhiên hệ thống hiện đang sử dụng \texttt{ON DELETE CASCADE}, nghĩa là nếu xóa Buyer thì toàn bộ Order liên quan cũng sẽ bị xóa theo $\rightarrow$ điều này vi phạm nghiệp vụ vì làm mất lịch sử giao dịch.
+        \item \textbf{CHECK}: không thể truy vấn sang bảng khác để kiểm tra sự tồn tại đơn hàng.
+        \item \textbf{UNIQUE / NOT NULL}: không liên quan, không thể dùng để kiểm soát ràng buộc dạng liên bảng.
+    \end{itemize}
+
+    Do vậy, \textbf{trigger} là cơ chế duy nhất cho phép hệ thống chủ động từ chối thao tác xóa Buyer khi Buyer vẫn còn các Order liên quan.
+    \textbf{Các thao tác DML có thể gây vi phạm}
+    Thao tác có nguy cơ trực tiếp vi phạm ràng buộc nghiệp vụ này là \textbf{DELETE} trên bảng \texttt{Buyer}. Khi hệ thống tiếp nhận yêu cầu xóa một Buyer, CSDL sẽ thực thi các ràng buộc toàn vẹn dựa trên cấu hình khóa ngoại. Tuy nhiên, trong mô hình hiện tại, khóa ngoại giữa \texttt{Order} và \texttt{Buyer} được thiết lập với \texttt{ON DELETE CASCADE}, nghĩa là:
+
+    \begin{itemize}
+        \item Khi \texttt{BuyerID} bị xóa, hệ thống coi Buyer đó không còn tồn tại trong hệ thống.
+        \item Do cơ chế \texttt{CASCADE}, tất cả các \texttt{Order} liên quan cũng sẽ bị xóa tự động.
+        \item Hậu quả là toàn bộ lịch sử giao dịch của người mua này, bao gồm các thông tin về đơn hàng, giá trị thanh toán, vận đơn, đánh giá sản phẩm,… đều bị mất hoàn toàn.
+    \end{itemize}
+
+    Điều này mâu thuẫn nghiêm trọng với yêu cầu nghiệp vụ cốt lõi của một hệ thống thương mại điện tử, vốn cần duy trì lịch sử giao dịch đầy đủ vì:
+
+    \begin{itemize}
+        \item Là cơ sở để giải quyết khiếu nại, bảo hành, hoàn tiền.
+        \item Cung cấp dữ liệu phân tích hành vi mua hàng và thống kê doanh thu.
+        \item Đáp ứng các yêu cầu lưu trữ dữ liệu theo quy định pháp lý.
+        \item Bảo đảm tính minh bạch và tin cậy của nền tảng.
+    \end{itemize}
+
+    Chính vì vậy, mặc dù ràng buộc khóa ngoại có thể xử lý xóa lan truyền về mặt kỹ thuật, hệ thống tuyệt đối không được phép để thao tác \textbf{DELETE Buyer} làm mất dữ liệu giao dịch. Do không thể thay đổi cấu trúc \texttt{Foreign Key} trong phạm vi bài tập, và cũng không thể sử dụng \texttt{CHECK} hoặc \texttt{UNIQUE} (vì không hỗ trợ truy vấn liên bảng), \textbf{trigger} trở thành cơ chế duy nhất cho phép hệ thống:
+
+    \begin{itemize}
+        \item Kiểm tra sự tồn tại của \texttt{Order} trước khi xóa.
+        \item Từ chối thao tác \texttt{DELETE} nếu Buyer còn đơn hàng liên quan.
+    \end{itemize}
+
+    Nhờ trigger, mọi nỗ lực xóa Buyer đang sở hữu các \texttt{Order} đều bị ngăn chặn từ sớm, bảo toàn hoàn toàn lịch sử giao dịch của hệ thống.
+
+
+
+    \textbf{Trigger kiểm tra ràng buộc}
+    \textbf{Trigger trong file code:}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/79.png}
+    \end{center}
+    \textbf{Giải thích}
+    \begin{itemize}
+        \item Trigger được kích hoạt trước khi thực hiện thao tác xóa \texttt{Buyer}, cho phép hệ thống kiểm tra trạng thái ràng buộc trước khi dữ liệu bị tác động. Trong quá trình này, trigger truy vấn bảng \texttt{Order} để xác định liệu Buyer đang bị xóa có tồn tại bất kỳ đơn hàng nào hay không.
+
+        \begin{itemize}
+            \item Nếu \texttt{BuyerID} xuất hiện trong bảng \texttt{Order}, điều đó có nghĩa là người mua đã phát sinh giao dịch và có lịch sử mua hàng.
+            \item Khi đó, trigger lập tức từ chối thao tác xóa, ngăn chặn việc xóa dữ liệu gây mất toàn bộ thông tin đơn hàng liên quan.
+        \end{itemize}
+
+        \item Cơ chế này đảm bảo rằng lịch sử giao dịch của khách hàng luôn được bảo tồn, dữ liệu trong hệ thống không bị mâu thuẫn, và các yêu cầu nghiệp vụ về lưu trữ thông tin mua bán được tuân thủ đầy đủ.
+    \end{itemize}
+    \textbf{Kiểm tra}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/80.png}
+    \end{center}
+
+    \paragraph{BẢNG ORDERUNIT – Ràng buộc: “Chỉ được tạo Shipment nếu OrderUnit đang ở trạng thái 'Processing'”}
+    
+    \textbf{Ràng buộc nghiệp vụ} \\
+    Trong quy trình xử lý đơn hàng của một hệ thống thương mại điện tử, mỗi đơn hàng con (\texttt{OrderUnit}) phải tuân theo chu trình trạng thái chặt chẽ: \texttt{Processing} $\rightarrow$ \texttt{Shipping} $\rightarrow$ \texttt{Completed} hoặc \texttt{Cancelled}. 
+
+    Theo yêu cầu nghiệp vụ, việc tạo vận đơn (\texttt{Shipment}) chỉ được phép xảy ra khi \texttt{OrderUnit} vẫn đang ở trạng thái ``Processing'' – đây là giai đoạn đơn hàng đang được cửa hàng chuẩn bị, xác nhận và đóng gói. 
+
+    Khi \texttt{OrderUnit} đã chuyển sang các trạng thái khác như \texttt{Shipping}, \texttt{Completed} hoặc \texttt{Cancelled}, hệ thống tuyệt đối không được phép tạo vận đơn mới, nhằm tránh tạo ra các bản ghi vận chuyển sai, trùng, hoặc không phù hợp với tiến trình xử lý thực tế của đơn hàng. 
+
+    Ràng buộc này không thể được triển khai bằng \texttt{CHECK} (vì \texttt{CHECK} không truy vấn bảng khác), và cũng không thể dùng \texttt{FOREIGN KEY} (vì ràng buộc này phụ thuộc vào giá trị động của một thuộc tính trong \texttt{OrderUnit}). Do vậy, \textbf{trigger} trở thành cơ chế bắt buộc để đảm bảo ràng buộc được kiểm tra đúng thời điểm. \\
+
+    \textbf{Các thao tác DML có thể gây vi phạm} \\
+    Thao tác có khả năng dẫn đến vi phạm ràng buộc là: \texttt{INSERT} trên bảng \texttt{Shipment}. 
+
+    Khi người dùng thực hiện thao tác thêm mới một \texttt{Shipment}, hệ thống sẽ phải kiểm tra trạng thái hiện tại của \texttt{OrderUnit} tương ứng. Nếu \texttt{OrderUnit} đã chuyển sang các trạng thái \texttt{Shipping}, \texttt{Completed} hoặc \texttt{Cancelled}, việc tạo thêm vận đơn là hoàn toàn không hợp lệ. Trong các trường hợp này, vận đơn mới sẽ phá vỡ logic xử lý đơn hàng, gây nhầm lẫn trong quá trình vận chuyển và làm sai lệch lịch sử nghiệp vụ. 
+
+    Vì vậy, cần có \textbf{trigger} để ngăn ngừa ngay tại thời điểm \texttt{INSERT}, nhằm đảm bảo rằng không có \texttt{Shipment} nào được tạo ra cho những \texttt{OrderUnit} đã vượt qua giai đoạn xử lý (\texttt{Processing}). \\
+
+    \textbf{Trigger kiểm tra ràng buộc} \\
+    \textbf{Trigger trong file code:}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/81.png}
+    \end{center}
+    \textbf{Giải thích}
+    Trigger này được kích hoạt trước khi hệ thống chèn một bản ghi \texttt{Shipment} mới, cho phép kiểm tra trạng thái \texttt{OrderUnit} ngay tại thời điểm phát sinh thao tác. Nếu trạng thái của \texttt{OrderUnit} khác ``Processing'', trigger sẽ lập tức chặn thao tác \texttt{INSERT} và phát sinh thông báo lỗi nghiệp vụ.
+
+    Cơ chế này đảm bảo rằng:
+    \begin{itemize}
+        \item Không phát sinh \texttt{Shipment} ở các trạng thái không phù hợp.
+        \item Chu trình xử lý đơn hàng không bị phá vỡ hoặc trùng lặp.
+        \item Thông tin vận chuyển luôn phản ánh đúng tiến trình xử lý thực tế.
+        \item Toàn bộ hệ thống duy trì được tính chính xác, minh bạch và toàn vẹn dữ liệu.
+    \end{itemize}
+    \textbf{Kiểm tra}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/81a.png}
+    \end{center}
+
+    \paragraph{BẢNG PRODUCT\_VARIANT – Ràng buộc: “Không được chuyển biến thể cuối cùng sang sản phẩm khác”}
+    \textbf{Ràng buộc nghiệp vụ} \\
+    Trong hệ thống thương mại điện tử, mỗi sản phẩm (\texttt{Product}) phải có ít nhất một biến thể (\texttt{ProductVariant}) để có thể tồn tại và hiển thị trên gian hàng. Mỗi biến thể đại diện cho một lựa chọn cụ thể về màu sắc, kích cỡ, dung lượng…, vì vậy việc đảm bảo một sản phẩm luôn có tối thiểu một biến thể là điều kiện thiết yếu. 
+
+    Nếu hệ thống cho phép chuyển biến thể cuối cùng của một sản phẩm sang sản phẩm khác (tức là thay đổi \texttt{ProductID} của biến thể), sản phẩm ban đầu sẽ không còn bất cứ biến thể nào, khiến sản phẩm trở thành một thực thể rỗng, vi phạm logic nghiệp vụ và gây lỗi trong quá trình hiển thị cũng như mua bán. 
+
+    Ràng buộc này:
+    \begin{itemize}
+        \item Không thể được kiểm tra bằng \texttt{CHECK}, vì \texttt{CHECK} không thể truy vấn số lượng biến thể của sản phẩm (không thể \texttt{COUNT} từ một bảng khác).
+        \item Không thể dùng \texttt{FOREIGN KEY}, vì khóa ngoại chỉ đảm bảo tham chiếu hợp lệ, không kiểm soát số lượng biến thể tối thiểu.
+    \end{itemize}
+
+    $\rightarrow$ Do đó, \textbf{trigger} là cơ chế duy nhất để kiểm soát nghiệp vụ này. \\
+
+    \textbf{Các thao tác DML có thể gây vi phạm} \\
+    Thao tác có khả năng dẫn đến vi phạm ràng buộc là \texttt{UPDATE} trên bảng \texttt{Product\_Variant}. 
+
+    Cụ thể, khi người dùng thực hiện cập nhật để thay đổi \texttt{ProductID} của một biến thể sang thuộc về một sản phẩm khác, hệ thống cần phải kiểm tra xem biến thể đó có phải là biến thể duy nhất còn lại của sản phẩm cũ hay không. 
+
+    Nếu biến thể đang cập nhật là biến thể cuối cùng của sản phẩm ban đầu, thì việc di chuyển biến thể sang một sản phẩm khác sẽ khiến sản phẩm cũ không còn bất kỳ biến thể nào, dẫn đến tình trạng sản phẩm ``rỗng''. Đây là lỗi nghiêm trọng trong nghiệp vụ vì một sản phẩm trong hệ thống thương mại điện tử luôn bắt buộc phải có ít nhất một biến thể hợp lệ để tồn tại và hiển thị. 
+
+    Do đó, thao tác \texttt{UPDATE} làm thay đổi \texttt{ProductID} của biến thể cuối cùng chính là thao tác có nguy cơ trực tiếp tạo ra lỗi nghiệp vụ, và cần được hệ thống kiểm soát bằng trigger. \\
+
+    \textbf{Trigger kiểm tra ràng buộc} \\
+    \textbf{Trigger trong code:}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/82.png}
+    \end{center}
+    \textbf{Giải thích} \\
+
+    Trigger này được kích hoạt trước khi hệ thống thực thi câu lệnh \texttt{UPDATE} trên bảng \texttt{ProductVariant}. Mục tiêu của trigger là kiểm tra xem biến thể đang được cập nhật có phải là biến thể cuối cùng của sản phẩm cũ hay không, nhằm ngăn ngừa tình trạng sản phẩm không còn bất kỳ biến thể nào — một lỗi nghiêm trọng trong nghiệp vụ quản lý sản phẩm. 
+
+    Cơ chế xử lý được triển khai theo các bước sau:
+    \begin{itemize}
+        \item \textbf{Bước 1:} Xác định việc thay đổi \texttt{ProductID}. Trigger trước tiên kiểm tra xem thao tác \texttt{UPDATE} có làm thay đổi \texttt{ProductID} hay không. 
+        \begin{itemize}
+            \item Nếu \texttt{ProductID} giữ nguyên, việc cập nhật không ảnh hưởng đến số lượng biến thể, nên trigger cho phép thực thi.
+            \item Nếu \texttt{ProductID} thay đổi, hệ thống phải kiểm tra số lượng biến thể còn lại của sản phẩm cũ.
+        \end{itemize}
+        \item \textbf{Bước 2:} Đếm số biến thể còn lại của sản phẩm ban đầu. Trigger thực hiện truy vấn để đếm tất cả biến thể thuộc cùng \texttt{ProductID} cũ, ngoại trừ biến thể đang được cập nhật.
+        \item \textbf{Bước 3:} Phát hiện tình huống vi phạm.
+        \begin{itemize}
+            \item Nếu số lượng biến thể còn lại lớn hơn 0, sản phẩm vẫn còn biến thể khác và thao tác cập nhật là hợp lệ.
+            \item Nếu kết quả bằng 0, có nghĩa là biến thể đó là biến thể cuối cùng của sản phẩm cũ.
+        \end{itemize}
+        \item \textbf{Bước 4:} Từ chối thao tác nếu vi phạm ràng buộc. Khi phát hiện đây là biến thể cuối cùng, trigger lập tức chặn thao tác \texttt{UPDATE} và phát sinh lỗi nghiệp vụ, ngăn không cho chuyển biến thể này sang sản phẩm khác.
+    \end{itemize}
+
+    Nhờ cơ chế kiểm soát này:
+    \begin{itemize}
+        \item Hệ thống không bao giờ để sản phẩm rơi vào trạng thái không có biến thể.
+        \item Mỗi sản phẩm luôn đảm bảo có ít nhất một \texttt{variant} hợp lệ, đúng theo yêu cầu nghiệp vụ.
+        \item Các sai sót trong quá trình cập nhật được ngăn chặn ngay trước khi dữ liệu được ghi vào CSDL, giúp duy trì tính toàn vẹn và ổn định của dữ liệu sản phẩm.
+    \end{itemize}
+
+    \textbf{Kiểm tra}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/83.png}
+    \end{center}
+
+    \paragraph{BẢNG REVIEW – Ràng buộc: “Không được chỉnh sửa đánh giá sau 7 ngày kể từ ngày tạo"}
+    \textbf{Ràng buộc nghiệp vụ} \\
+    Trong các nền tảng thương mại điện tử, đánh giá sản phẩm (\texttt{Review}) là một phần quan trọng quyết định trải nghiệm người dùng và mức độ tin cậy của sản phẩm. Mỗi đánh giá, một khi đã được người dùng đăng tải, cần được duy trì tính khách quan và phản ánh đúng trải nghiệm của người mua tại thời điểm giao dịch. 
+
+    Do đó, hệ thống thường quy định một giới hạn thời gian cho phép chỉnh sửa đánh giá. Trong mô hình này, người dùng chỉ được phép chỉnh sửa \texttt{Review} trong vòng 7 ngày kể từ thời điểm tạo (\texttt{CreatedAt}). Sau 7 ngày, đánh giá được xem là đã ổn định và không được phép thay đổi nữa. 
+
+    Ràng buộc này không thể áp dụng bằng \texttt{CHECK} hoặc \texttt{FOREIGN KEY}, vì:
+    \begin{itemize}
+        \item \texttt{CHECK}: không thể truy vấn dữ liệu cũ (\texttt{OLD.CreatedAt}) để tính số ngày đã trôi qua.
+        \item \texttt{FOREIGN KEY}: không liên quan, vì không phải quan hệ giữa các bảng.
+        \item Ứng dụng (frontend/back-end) có thể kiểm tra, nhưng không đáng tin vì có thể bị bỏ qua hoặc chỉnh sửa thủ công.
+    \end{itemize}
+
+    Vì vậy, \textbf{trigger} là phương thức duy nhất giúp đảm bảo dữ liệu luôn tuân thủ đúng nghiệp vụ, chặn trực tiếp mọi \texttt{UPDATE} không hợp lệ ngay tại tầng CSDL. \\
+
+    \textbf{Các thao tác DML có khả năng vi phạm} \\
+    \begin{itemize}
+        \item Chỉ duy nhất thao tác \texttt{UPDATE Review} gây vi phạm ràng buộc.
+        \item Nếu thời điểm \texttt{UPDATE} cách \texttt{CreatedAt} hơn 7 ngày, người dùng đang cố sửa một đánh giá đã quá hạn cho phép $\rightarrow$ trái với nghiệp vụ hệ thống.
+        \item Không có thao tác \texttt{INSERT} hoặc \texttt{DELETE} nào gây ra lỗi trong ràng buộc này.
+    \end{itemize}
+
+    \textbf{Trigger kiểm tra ràng buộc}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/84.png}
+    \end{center}
+    
+    \textbf{Giải thích} \\
+
+    Trigger được kích hoạt trước khi hệ thống thực hiện câu lệnh \texttt{UPDATE}, giúp đảm bảo rằng mọi thay đổi đối với nội dung review đều được kiểm tra nghiêm ngặt theo đúng nghiệp vụ. 
+
+    Khi người dùng cố cập nhật đánh giá, trigger sẽ:
+    \begin{itemize}
+        \item Lấy thời điểm tạo ban đầu (\texttt{OLD.CreatedAt}).
+        \item Tính khoảng cách giữa thời điểm hiện tại và \texttt{CreatedAt}.
+        \item Nếu số ngày vượt quá 7, trigger lập tức báo lỗi và chặn thao tác.
+    \end{itemize}
+
+    Cơ chế này bảo đảm:
+    \begin{itemize}
+        \item Tính khách quan của đánh giá không bị thay đổi theo ý muốn sau thời gian dài.
+        \item Lịch sử phản hồi của người mua được bảo toàn.
+        \item Tính minh bạch của hệ thống thương mại điện tử được duy trì.
+    \end{itemize}
+
+    \textbf{Kiểm tra}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/85.png}
+    \end{center}
+
+    \paragraph{BẢNG CARTITEM – Ràng buộc: “Không được thêm hoặc cập nhật số lượng vượt quá tồn kho”}
+    \textbf{Ràng buộc nghiệp vụ} \\
+    Trong giỏ hàng, mỗi \texttt{CartItem} lưu số lượng người dùng muốn mua. Để đảm bảo tính chính xác khi đặt hàng và tránh lỗi trong bước thanh toán, số lượng này không được phép vượt quá số lượng tồn kho thực tế của biến thể sản phẩm (\texttt{ProductVariant.Stock}). 
+
+    Ràng buộc này không thể dùng \texttt{CHECK}, vì \texttt{CHECK} không thể truy vấn bảng \texttt{ProductVariant}. Cũng không thể dùng khóa ngoại vì khóa ngoại chỉ quản lý tính tồn tại của \texttt{ProductVariantID}, không kiểm soát giá trị \texttt{Stock}. 
+
+    Do đó, \textbf{trigger} là công cụ duy nhất để:
+    \begin{itemize}
+        \item Kiểm tra tồn kho tại thời điểm thêm/cập nhật giỏ hàng.
+        \item Ngăn chặn người dùng nhập số lượng vượt quá giá trị thật.
+        \item Duy trì tính toàn vẹn dữ liệu trong suốt quy trình mua hàng.
+    \end{itemize}
+
+    \textbf{Các thao tác DML gây vi phạm} \\
+    Hai thao tác có thể làm số lượng vượt tồn kho:
+    \begin{itemize}
+        \item \texttt{INSERT CartItem} $\rightarrow$ Khi thêm mới sản phẩm vào giỏ.
+        \item \texttt{UPDATE CartItem} $\rightarrow$ Khi tăng số lượng sản phẩm đã có.
+    \end{itemize}
+
+    Cả hai đều có nguy cơ gây sai lệch so với tồn kho thực tế. \\
+
+    \textbf{Trigger kiểm tra ràng buộc}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/86.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/87.png}
+    \end{center}
+    \textbf{Giải thích} \\
+
+    Hai trigger này đảm bảo mọi thao tác thay đổi số lượng sản phẩm trong giỏ hàng đều được kiểm soát. 
+
+    Trigger hoạt động theo quy trình:
+    \begin{itemize}
+        \item Lấy tồn kho thật từ bảng \texttt{ProductVariant}.
+        \item So sánh với số lượng người dùng yêu cầu (\texttt{NEW.Quantity}).
+        \item Nếu vượt tồn kho $\rightarrow$ chặn thao tác ngay lập tức.
+    \end{itemize}
+
+    Cơ chế này giúp:
+    \begin{itemize}
+        \item Ngăn tình trạng giỏ hàng bị sai lệch so với tồn kho thật.
+        \item Đảm bảo quá trình tạo đơn hàng (\texttt{Order}) không gặp lỗi.
+        \item Giữ cho hệ thống vận hành ổn định và tránh tranh chấp với khách hàng.
+    \end{itemize}
+
+    \textbf{Kiểm tra}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/88.png}
+    \end{center}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/89.png}
+    \end{center}
+
+    \paragraph{BẢNG SHIPMENT – Ràng buộc: “Chỉ được tạo Shipment nếu OrderUnit đang ở trạng thái Processing”}
+    \textbf{Ràng buộc nghiệp vụ} \\
+    Mỗi \texttt{Shipment} tương ứng với một \texttt{OrderUnit}. Trong hệ thống thương mại điện tử, quy trình trạng thái của \texttt{OrderUnit} phải được tuân thủ chặt chẽ: 
+    \begin{itemize}
+        \item \texttt{Processing} (đang chuẩn bị hàng) $\rightarrow$ Mới được phép tạo vận đơn (\texttt{Shipment}).
+        \item \texttt{Shipping} / \texttt{Completed} / \texttt{Cancelled} $\rightarrow$ Không được tạo thêm \texttt{Shipment}.
+    \end{itemize}
+
+    Nếu hệ thống cho phép tạo vận đơn khi \texttt{OrderUnit} không nằm trong trạng thái \texttt{Processing}, điều này sẽ gây:
+    \begin{itemize}
+        \item Sai lệch về quy trình vận hành.
+        \item Phát sinh vận đơn dư thừa, sai dữ liệu.
+        \item Gây lỗi hậu vận (COD, giao nhận, hủy đơn, hoàn tiền…).
+    \end{itemize}
+
+    Ràng buộc này:
+    \begin{itemize}
+        \item Không dùng \texttt{CHECK} được (không truy vấn bảng \texttt{OrderUnit}).
+        \item Không dùng \texttt{FOREIGN KEY} được (không kiểm soát trạng thái động).
+    \end{itemize}
+
+    $\rightarrow$ \textbf{Trigger} là lựa chọn bắt buộc. \\
+
+    \textbf{Các thao tác DML gây vi phạm} \\
+    \begin{itemize}
+        \item Chỉ thao tác \texttt{INSERT Shipment} gây nguy cơ vi phạm nghiệp vụ.
+        \item Khi thêm \texttt{Shipment} mới, hệ thống bắt buộc phải kiểm tra trạng thái hiện tại của \texttt{OrderUnit} tương ứng.
+    \end{itemize}
+
+    \textbf{Trigger kiểm tra ràng buộc}
+
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/90.png}
+    \end{center}
+
+    \textbf{Giải thích} \\
+
+    Trigger này được kích hoạt ngay trước khi hệ thống thêm một vận đơn mới. Quy trình hoạt động:
+    \begin{itemize}
+        \item Lấy trạng thái hiện tại của \texttt{OrderUnit}.
+        \item So sánh với trạng thái hợp lệ duy nhất (``Processing'').
+        \item Nếu khác $\rightarrow$ hệ thống lập tức từ chối thao tác \texttt{INSERT}.
+    \end{itemize}
+
+    Trigger đảm bảo:
+    \begin{itemize}
+        \item Không có \texttt{Shipment} nào được tạo sai quy trình.
+        \item Dữ liệu vận hành logistics luôn chính xác.
+        \item Tránh được lỗi nghiêm trọng trong hệ thống giao hàng và đối soát.
+    \end{itemize}
+
+    \textbf{Kiểm tra}
+    \begin{center}
+        \includegraphics[scale=0.8]{Picture/91.png}
+    \end{center}
+
+    \subsubsection{2.2.2 Trigger tính toán thuộc tính dẫn xuất}

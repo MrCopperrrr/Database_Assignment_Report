@@ -1,97 +1,99 @@
-\section*{1. Phân tích và mô tả yêu cầu dữ liệu cho chủ đề đã chọn}
-\addcontentsline{toc}{section}{1. Phân tích và mô tả yêu cầu dữ liệu cho chủ đề đã chọn}
-
-%========================================================================================
-\subsection*{1.1. Tìm hiểu ứng dụng/hệ thống tham khảo}
-\addcontentsline{toc}{subsection}{1.1. Tìm hiểu ứng dụng/hệ thống tham khảo}
-
-\noindent\indent Shopee tại thị trường Việt Nam là hệ thống tham khảo chính mà nhóm em lựa chọn. Đó là một nền tảng thương mại điện tử B2C, C2C, nổi tiếng và phổ biến với hàng triệu người dùng. Website chính thức của ứng dụng là https://shopee.vn. Các trải nghiệm mang đến cho người dùng ở Shopee là mua sắm trực tuyến từ tìm kiếm sản phẩm, thêm vào giỏ hàng, thanh toán, đến theo dõi quá trình vận chuyển và gửi đánh giá sau mua.
-\vspace{0.3cm}
-
-\indent Trong hệ sinh thái Shopee còn có các mô-đun hỗ trợ chuyên biệt. Shopee đã xây dựng nền tảng chuyên biệt cho người bán là Shopee Seller Centre (https://banhang.shopee.vn), ngoài ra còn có ứng dụng Shopee dành cho cả người mua và người bán. Về phía nền tảng dành cho người bán thì tại đó, cho phép quản lý cửa hàng, đăng sản phẩm theo danh mục chuẩn hóa, cấu hình vận chuyển, xử lý đơn hàng và triển khai các chương trình khuyến mãi như Flash Sale hoặc tạo voucher. Song song thì Shopee Pay (https://shopeepay.vn) là ví điện tử tích hợp, hỗ trợ thanh toán nhanh chóng và an toàn, đồng thời cung cấp chức năng quản lý hoàn tiền, nhưng đặc biệt là có chức năng đối soát giao dịch dành cho người bán.  Việc tham chiếu 2 module này chỉ để làm rõ thêm nghiệp vụ, đối tượng khảo sát chính vẫn là Shopee.
-\vspace{0.3cm}
-
-\indent Luồng nghiệp vụ của Shopee qua khảo sát thực tế đã cho thấy rằng: đối với người mua thì đăng ký tài khoản, duyệt và chọn sản phẩm, thêm vào giỏ hàng, áp mã giảm giá, tiến hành thanh toán bằng nhiều phương thức khác nhau như Shopee Pay, thẻ, COD, theo dõi trạng thái đơn hàng theo từng mốc vận chuyển và gửi đánh giá khi nhận hàng. Đối với người bán thì khởi tạo cửa hàng, niêm yết sản phẩm theo chuẩn dữ liệu và danh mục, quản lý tồn kho, xử lý đơn hàng, đối soát thanh toán và theo dõi hiệu quả kinh doanh thông qua Seller Centre. Ngoài ra, hệ thống logistics tích hợp với nhiều đối tác vận chuyển để cập nhật tình trạng đơn hàng theo từng mốc hành trình đảm bảo thông tin giao nhận được phản ánh kịp thời.
-\vspace{0.3cm}
-
-\indent Để minh chứng cho khảo sát, nhóm sẽ tự thao tác và chụp ảnh các màn hình tiêu biểu trên ứng dụng/web như: trang giỏ hàng, trang thanh toán tích hợp Shopee Pay, chi tiết đơn hàng với các mốc vận chuyển, bảng điều khiển Seller Centre (đơn hàng chờ xử lý, Marketing Centre, Account Health), giao diện tạo voucher và trang đánh giá sản phẩm. Các minh chứng này giúp phản ánh chân thực trải nghiệm người dùng và đối chiếu với phân tích nghiệp vụ trong báo cáo.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.18]{Picture/1.jpg}
-    \caption{Giao diện giỏ hàng}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.18]{Picture/2.jpg}
-    \caption{Giao diện trang cá nhân}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.18]{Picture/3.jpg}
-    \caption{Giao diện trang chủ}
-\end{figure}
-%========================================================================================
-\newpage
-\subsection*{1.2. Mô tả hệ thống đề xuất}
-\addcontentsline{toc}{subsection}{1.2. Mô tả hệ thống đề xuất}
-\noindent\indent Hệ thống thương mại điện tử Shopee quản lý người dùng, cửa hàng, sản phẩm và các giao dịch mua bán. Cơ sở dữ liệu được mô tả như sau:
-Trong hệ thống, tất cả tài khoản người dùng được quản lý bằng thực thể Người dùng (USER). Mỗi tài khoản có thông tin cơ bản như số điện thoại, email, vai trò (người mua hoặc người bán), trạng thái tài khoản (chưa xác thực, đã xác thực hay bị khóa) và có một mã định danh duy nhất. Nếu người dùng chọn mua sắm thì sẽ trở thành Người mua (BUYER), còn nếu mở gian hàng thì sẽ là Người bán (SELLER). Hệ thống đảm bảo rằng mỗi tài khoản chỉ có thể mang một trong hai vai trò này.
-\vspace{0.3cm}
-
-Đối với người mua, hệ thống gắn cho họ một mã riêng và liên kết duy nhất với một người dùng. Người mua là người đặt đơn hàng và sở hữu Giỏ hàng (CART) của riêng mình, mỗi giỏ hàng có một mã định danh duy nhất. Trong giỏ hàng đó có nhiều Mặt hàng trong giỏ (CART ITEM), mỗi mặt hàng lưu lại mã sản phẩm (SKU) và số lượng mong muốn.  Mỗi mặt hàng được gắn với một Biến thể sản phẩm (PRODUCT VARIANT) cụ thể, thể hiện lựa chọn mà người mua đã thêm vào giỏ. Khi người mua tiến hành đặt hàng, hệ thống tạo ra một Đơn hàng (ORDER). Đơn hàng là đơn gốc chứa thông tin như mã, thời điểm tạo, tổng giá trị, chiết khấu và trạng thái thanh toán.
-\vspace{0.3cm}
-
-Do một đơn hàng có thể bao gồm các sản phẩm, nên đơn hàng được tách thành nhiều Đơn hàng con (ORDER UNIT), mỗi đơn hàng con tương ứng với một Cửa hàng (STORE) cụ thể. Mỗi đơn hàng con có mã riêng, trạng thái xử lý và phí vận chuyển. Trong từng đơn hàng con, các sản phẩm được liệt kê chi tiết ở mức Dòng đơn hàng (ORDER LINE); mỗi dòng có mã định danh riêng, liên kết với biến thể sản phẩm thông qua mã SKU, kèm theo số lượng, giá đơn vị và chiết khấu áp dụng. Đây là dữ liệu chi tiết nhất của giao dịch mua bán. Khi người bán xác nhận đơn, hệ thống sẽ tạo một Đơn vận chuyển (SHIPMENT) cho đơn hàng con đó. Đơn vận chuyển có mã vận đơn riêng, thông tin đơn vị vận chuyển, trạng thái và lịch trình vận chuyển để theo dõi các mốc như “đã lấy hàng”, “đang giao” hay “đã giao thành công”.
-\vspace{0.3cm}
-
-Giao dịch thanh toán (PAYMENT TRANSACTION) lưu toàn bộ thông tin thanh toán của hệ thống. Mỗi giao dịch có số hiệu riêng, thời điểm khởi tạo và được thực hiện bởi người mua. Mỗi người mua có thể tạo nhiều giao dịch thanh toán, và một đơn hàng có thể phát sinh nhiều giao dịch khác nhau (ví dụ: thanh toán lại hoặc hoàn tiền), nhưng mỗi giao dịch chỉ gắn với một đơn hàng duy nhất. Giao dịch thanh toán còn tham chiếu đến Phương thức thanh toán (PAYMENT METHOD) – loại hình thanh toán mà người dùng lựa chọn, bao gồm các thông tin như mã phương thức, loại (ShopeePay, thẻ ngân hàng, COD…) và chi tiết tương ứng. Một người mua có thể lưu nhiều phương thức thanh toán khác nhau, và mỗi phương thức đều có thể được sử dụng trong nhiều giao dịch.
-\vspace{0.3cm}
-
-Ở phía người bán, họ được định danh bằng mã riêng và có thông tin xác thực cũng như tài khoản ngân hàng. Mỗi người bán chỉ được phép sở hữu đúng một cửa hàng trên hệ thống. Cửa hàng là nơi đại diện cho người bán, có các thuộc tính như mã cửa hàng, tên, hồ sơ thương hiệu, chính sách đổi trả, trạng thái hoạt động và có thể mang nhãn Mall. Một cửa hàng có thể đăng bán nhiều Sản phẩm (PRODUCT), còn mỗi sản phẩm chỉ thuộc về một cửa hàng.
-\vspace{0.3cm}
-
-Các sản phẩm được quản lý trong thực thể sản phẩm. Mỗi sản phẩm có mã sản phẩm duy nhất, tiêu đề, mô tả, hình ảnh, video và trạng thái niêm yết. Một sản phẩm có thể được gắn vào nhiều Danh mục (CATEGORY) khác nhau để người dùng dễ tìm kiếm, và ngược lại, mỗi danh mục có thể bao gồm nhiều sản phẩm. Danh mục được tổ chức theo cấu trúc phân cấp nhiều tầng, giúp việc sắp xếp và tìm kiếm trở nên dễ dàng hơn. Mỗi danh mục có thể có nhiều danh mục con, và mỗi danh mục con sẽ ghi lại mã của danh mục cha thông qua thuộc tính ParentCategoryID. Một sản phẩm thường có nhiều lựa chọn khác nhau như màu sắc, kích cỡ hoặc phiên bản. Những lựa chọn này được lưu trong thực thể biến thể sản phẩm, mỗi biến thể có mã định danh duy nhất, giá niêm yết, giá khuyến mãi và số lượng tồn kho hiện có.
-\vspace{0.3cm}
-
-Khi đơn hàng đã được giao thành công, người mua có thể để lại Đánh giá (REVIEW) cho sản phẩm mình đã mua. Mỗi đánh giá có mã định danh, điểm số, nội dung, hình ảnh, video minh họa và thời điểm tạo. Đánh giá được liên kết với người mua đã viết và sản phẩm được đánh giá. Một người mua có thể viết nhiều đánh giá, và mỗi sản phẩm cũng có thể nhận nhiều đánh giá từ những người mua khác nhau. Nhờ vậy, phần đánh giá giúp người dùng khác tham khảo trước khi mua, đồng thời giúp cửa hàng cải thiện chất lượng sản phẩm của mình.
-
-
-%========================================================================================
-\subsection*{1.3. Các ràng buộc ngữ nghĩa không thể hiện trực tiếp trên (E-)ERD}
-\addcontentsline{toc}{subsection}{1.3. Các ràng buộc ngữ nghĩa không thể hiện trực tiếp trên (E-)ERD}
-
-\noindent\indent Bên cạnh các thực thể và mối quan hệ đã thể hiện trong sơ đồ E-ERD, hệ thống cơ sở dữ liệu còn phải tuân thủ nhiều ràng buộc ngữ nghĩa nhằm đảm bảo tính toàn vẹn dữ liệu và phản ánh chính xác hoạt động thực tế của sàn thương mại điện tử. Những quy tắc này không thể hiện trực tiếp bằng ký hiệu trên sơ đồ, song vẫn được quy định rõ ràng trong quá trình thiết kế hệ thống như sau.
-\vspace{0.3cm}
-
-\indent Thứ nhất, mỗi cửa hàng (STORE) chỉ được phép đăng bán sản phẩm (PRODUCT) khi cửa hàng đang ở trạng thái hoạt động (Active). Nếu cửa hàng bị tạm khóa hoặc ngừng hoạt động, mọi thao tác đăng bán sẽ bị vô hiệu.
-\vspace{0.3cm}
-
-\indent Thứ hai, người bán (SELLER) chỉ được phép chỉnh sửa thông tin của sản phẩm (PRODUCT) khi sản phẩm đó chưa có đơn hàng (ORDER) nào đang trong quá trình xử lý. Điều này nhằm đảm bảo tính thống nhất giữa dữ liệu sản phẩm và các đơn hàng liên quan.
-\vspace{0.3cm}
-
-\indent Thứ ba, giỏ hàng (CART) của người mua (BUYER) sẽ được tự động làm mới sau khi thanh toán thành công. Các mặt hàng trong giỏ (CART ITEM) tương ứng với đơn đã thanh toán sẽ tự động bị xóa khỏi giỏ hàng, giúp người mua dễ dàng quản lý các sản phẩm chưa mua.
-\vspace{0.3cm}
-
-\indent Thứ tư, đơn vận chuyển (SHIPMENT) chỉ được khởi tạo khi đơn hàng con (ORDER UNIT) đã được người bán xác nhận. Hệ thống không cho phép tạo vận đơn cho các đơn hàng chưa được xác nhận nhằm tránh thất thoát hàng hóa.
-\vspace{0.3cm}
-
-\indent Thứ năm, mỗi đơn vận chuyển (SHIPMENT) đều có thời hạn giao hàng nhất định. Nếu quá X ngày kể từ ngày tạo mà vẫn chưa hoàn tất, hệ thống sẽ tự động đánh dấu đơn đó là thất bại để xử lý hoàn tiền hoặc khiếu nại.
-\vspace{0.3cm}
-
-\indent Thứ sáu, người mua (BUYER) không thể hủy đơn hàng (ORDER) sau khi đơn đã được gắn với đơn vận chuyển (SHIPMENT) và đang ở trạng thái đang giao. Việc này nhằm bảo đảm quy trình vận chuyển và tránh rủi ro cho bên bán.
-\vspace{0.3cm}
-
-\indent Thứ bảy, một đơn hàng (ORDER) chỉ được chuyển sang trạng thái hoàn tất khi tất cả các đơn hàng con (ORDER UNIT) liên quan đều đã được giao thành công. Nếu còn bất kỳ đơn hàng con nào chưa hoàn tất, toàn bộ đơn sẽ vẫn ở trạng thái chờ xử lý.
-\vspace{0.3cm}
-
-\indent Thứ tám, người mua (BUYER) chỉ được phép tạo đánh giá (REVIEW) cho sản phẩm sau khi đơn hàng (ORDER) chứa sản phẩm đó đã được giao thành công. Điều này đảm bảo rằng chỉ những người thực sự đã mua hàng mới có thể để lại đánh giá.
-\vspace{0.3cm}
-
-\indent Thứ chín, đánh giá (REVIEW) chỉ được phép chỉnh sửa trong vòng 7 ngày kể từ thời điểm đăng. Sau thời hạn này, nội dung đánh giá sẽ được khóa để đảm bảo tính minh bạch.
-\vspace{0.3cm}
-
-\indent Cuối cùng, điểm đánh giá của đánh giá (REVIEW) chỉ được tính vào uy tín của cửa hàng (STORE) nếu đánh giá đó đến từ đơn hàng thật, tức là không thuộc các đơn bị hủy hoặc hoàn tiền. Nhờ đó, hệ thống duy trì được độ tin cậy và công bằng trong xếp hạng cửa hàng.
-
-
-%========================================================================================
+\section{Assignment 1}
+    \subsection*{1. Phân tích và mô tả yêu cầu dữ liệu cho chủ đề đã chọn}
+    \addcontentsline{toc}{section}{1. Phân tích và mô tả yêu cầu dữ liệu cho chủ đề đã chọn}
+    
+    %========================================================================================
+    \subsubsection*{1.1. Tìm hiểu ứng dụng/hệ thống tham khảo}
+    \addcontentsline{toc}{subsection}{1.1. Tìm hiểu ứng dụng/hệ thống tham khảo}
+    
+    \noindent\indent Shopee tại thị trường Việt Nam là hệ thống tham khảo chính mà nhóm em lựa chọn. Đó là một nền tảng thương mại điện tử B2C, C2C, nổi tiếng và phổ biến với hàng triệu người dùng. Website chính thức của ứng dụng là https://shopee.vn. Các trải nghiệm mang đến cho người dùng ở Shopee là mua sắm trực tuyến từ tìm kiếm sản phẩm, thêm vào giỏ hàng, thanh toán, đến theo dõi quá trình vận chuyển và gửi đánh giá sau mua.
+    \vspace{0.3cm}
+    
+    \indent Trong hệ sinh thái Shopee còn có các mô-đun hỗ trợ chuyên biệt. Shopee đã xây dựng nền tảng chuyên biệt cho người bán là Shopee Seller Centre (https://banhang.shopee.vn), ngoài ra còn có ứng dụng Shopee dành cho cả người mua và người bán. Về phía nền tảng dành cho người bán thì tại đó, cho phép quản lý cửa hàng, đăng sản phẩm theo danh mục chuẩn hóa, cấu hình vận chuyển, xử lý đơn hàng và triển khai các chương trình khuyến mãi như Flash Sale hoặc tạo voucher. Song song thì Shopee Pay (https://shopeepay.vn) là ví điện tử tích hợp, hỗ trợ thanh toán nhanh chóng và an toàn, đồng thời cung cấp chức năng quản lý hoàn tiền, nhưng đặc biệt là có chức năng đối soát giao dịch dành cho người bán.  Việc tham chiếu 2 module này chỉ để làm rõ thêm nghiệp vụ, đối tượng khảo sát chính vẫn là Shopee.
+    \vspace{0.3cm}
+    
+    \indent Luồng nghiệp vụ của Shopee qua khảo sát thực tế đã cho thấy rằng: đối với người mua thì đăng ký tài khoản, duyệt và chọn sản phẩm, thêm vào giỏ hàng, áp mã giảm giá, tiến hành thanh toán bằng nhiều phương thức khác nhau như Shopee Pay, thẻ, COD, theo dõi trạng thái đơn hàng theo từng mốc vận chuyển và gửi đánh giá khi nhận hàng. Đối với người bán thì khởi tạo cửa hàng, niêm yết sản phẩm theo chuẩn dữ liệu và danh mục, quản lý tồn kho, xử lý đơn hàng, đối soát thanh toán và theo dõi hiệu quả kinh doanh thông qua Seller Centre. Ngoài ra, hệ thống logistics tích hợp với nhiều đối tác vận chuyển để cập nhật tình trạng đơn hàng theo từng mốc hành trình đảm bảo thông tin giao nhận được phản ánh kịp thời.
+    \vspace{0.3cm}
+    
+    \indent Để minh chứng cho khảo sát, nhóm sẽ tự thao tác và chụp ảnh các màn hình tiêu biểu trên ứng dụng/web như: trang giỏ hàng, trang thanh toán tích hợp Shopee Pay, chi tiết đơn hàng với các mốc vận chuyển, bảng điều khiển Seller Centre (đơn hàng chờ xử lý, Marketing Centre, Account Health), giao diện tạo voucher và trang đánh giá sản phẩm. Các minh chứng này giúp phản ánh chân thực trải nghiệm người dùng và đối chiếu với phân tích nghiệp vụ trong báo cáo.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.18]{Picture/1.jpg}
+        \caption{Giao diện giỏ hàng}
+    \end{figure}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.18]{Picture/2.jpg}
+        \caption{Giao diện trang cá nhân}
+    \end{figure}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.18]{Picture/3.jpg}
+        \caption{Giao diện trang chủ}
+    \end{figure}
+    %========================================================================================
+    \newpage
+    \subsubsection*{1.2. Mô tả hệ thống đề xuất}
+    \addcontentsline{toc}{subsection}{1.2. Mô tả hệ thống đề xuất}
+    \noindent\indent Hệ thống thương mại điện tử Shopee quản lý người dùng, cửa hàng, sản phẩm và các giao dịch mua bán. Cơ sở dữ liệu được mô tả như sau:
+    Trong hệ thống, tất cả tài khoản người dùng được quản lý bằng thực thể Người dùng (USER). Mỗi tài khoản có thông tin cơ bản như số điện thoại, email, vai trò (người mua hoặc người bán), trạng thái tài khoản (chưa xác thực, đã xác thực hay bị khóa) và có một mã định danh duy nhất. Nếu người dùng chọn mua sắm thì sẽ trở thành Người mua (BUYER), còn nếu mở gian hàng thì sẽ là Người bán (SELLER). Hệ thống đảm bảo rằng mỗi tài khoản chỉ có thể mang một trong hai vai trò này.
+    \vspace{0.3cm}
+    
+    Đối với người mua, hệ thống gắn cho họ một mã riêng và liên kết duy nhất với một người dùng. Người mua là người đặt đơn hàng và sở hữu Giỏ hàng (CART) của riêng mình, mỗi giỏ hàng có một mã định danh duy nhất. Trong giỏ hàng đó có nhiều Mặt hàng trong giỏ (CART ITEM), mỗi mặt hàng lưu lại mã sản phẩm (SKU) và số lượng mong muốn.  Mỗi mặt hàng được gắn với một Biến thể sản phẩm (PRODUCT VARIANT) cụ thể, thể hiện lựa chọn mà người mua đã thêm vào giỏ. Khi người mua tiến hành đặt hàng, hệ thống tạo ra một Đơn hàng (ORDER). Đơn hàng là đơn gốc chứa thông tin như mã, thời điểm tạo, tổng giá trị, chiết khấu và trạng thái thanh toán.
+    \vspace{0.3cm}
+    
+    Do một đơn hàng có thể bao gồm các sản phẩm, nên đơn hàng được tách thành nhiều Đơn hàng con (ORDER UNIT), mỗi đơn hàng con tương ứng với một Cửa hàng (STORE) cụ thể. Mỗi đơn hàng con có mã riêng, trạng thái xử lý và phí vận chuyển. Trong từng đơn hàng con, các sản phẩm được liệt kê chi tiết ở mức Dòng đơn hàng (ORDER LINE); mỗi dòng có mã định danh riêng, liên kết với biến thể sản phẩm thông qua mã SKU, kèm theo số lượng, giá đơn vị và chiết khấu áp dụng. Đây là dữ liệu chi tiết nhất của giao dịch mua bán. Khi người bán xác nhận đơn, hệ thống sẽ tạo một Đơn vận chuyển (SHIPMENT) cho đơn hàng con đó. Đơn vận chuyển có mã vận đơn riêng, thông tin đơn vị vận chuyển, trạng thái và lịch trình vận chuyển để theo dõi các mốc như “đã lấy hàng”, “đang giao” hay “đã giao thành công”.
+    \vspace{0.3cm}
+    
+    Giao dịch thanh toán (PAYMENT TRANSACTION) lưu toàn bộ thông tin thanh toán của hệ thống. Mỗi giao dịch có số hiệu riêng, thời điểm khởi tạo và được thực hiện bởi người mua. Mỗi người mua có thể tạo nhiều giao dịch thanh toán, và một đơn hàng có thể phát sinh nhiều giao dịch khác nhau (ví dụ: thanh toán lại hoặc hoàn tiền), nhưng mỗi giao dịch chỉ gắn với một đơn hàng duy nhất. Giao dịch thanh toán còn tham chiếu đến Phương thức thanh toán (PAYMENT METHOD) – loại hình thanh toán mà người dùng lựa chọn, bao gồm các thông tin như mã phương thức, loại (ShopeePay, thẻ ngân hàng, COD…) và chi tiết tương ứng. Một người mua có thể lưu nhiều phương thức thanh toán khác nhau, và mỗi phương thức đều có thể được sử dụng trong nhiều giao dịch.
+    \vspace{0.3cm}
+    
+    Ở phía người bán, họ được định danh bằng mã riêng và có thông tin xác thực cũng như tài khoản ngân hàng. Mỗi người bán chỉ được phép sở hữu đúng một cửa hàng trên hệ thống. Cửa hàng là nơi đại diện cho người bán, có các thuộc tính như mã cửa hàng, tên, hồ sơ thương hiệu, chính sách đổi trả, trạng thái hoạt động và có thể mang nhãn Mall. Một cửa hàng có thể đăng bán nhiều Sản phẩm (PRODUCT), còn mỗi sản phẩm chỉ thuộc về một cửa hàng.
+    \vspace{0.3cm}
+    
+    Các sản phẩm được quản lý trong thực thể sản phẩm. Mỗi sản phẩm có mã sản phẩm duy nhất, tiêu đề, mô tả, hình ảnh, video và trạng thái niêm yết. Một sản phẩm có thể được gắn vào nhiều Danh mục (CATEGORY) khác nhau để người dùng dễ tìm kiếm, và ngược lại, mỗi danh mục có thể bao gồm nhiều sản phẩm. Danh mục được tổ chức theo cấu trúc phân cấp nhiều tầng, giúp việc sắp xếp và tìm kiếm trở nên dễ dàng hơn. Mỗi danh mục có thể có nhiều danh mục con, và mỗi danh mục con sẽ ghi lại mã của danh mục cha thông qua thuộc tính ParentCategoryID. Một sản phẩm thường có nhiều lựa chọn khác nhau như màu sắc, kích cỡ hoặc phiên bản. Những lựa chọn này được lưu trong thực thể biến thể sản phẩm, mỗi biến thể có mã định danh duy nhất, giá niêm yết, giá khuyến mãi và số lượng tồn kho hiện có.
+    \vspace{0.3cm}
+    
+    Khi đơn hàng đã được giao thành công, người mua có thể để lại Đánh giá (REVIEW) cho sản phẩm mình đã mua. Mỗi đánh giá có mã định danh, điểm số, nội dung, hình ảnh, video minh họa và thời điểm tạo. Đánh giá được liên kết với người mua đã viết và sản phẩm được đánh giá. Một người mua có thể viết nhiều đánh giá, và mỗi sản phẩm cũng có thể nhận nhiều đánh giá từ những người mua khác nhau. Nhờ vậy, phần đánh giá giúp người dùng khác tham khảo trước khi mua, đồng thời giúp cửa hàng cải thiện chất lượng sản phẩm của mình.
+    
+    
+    %========================================================================================
+    \subsubsection*{1.3. Các ràng buộc ngữ nghĩa không thể hiện trực tiếp trên (E-)ERD}
+    \addcontentsline{toc}{subsection}{1.3. Các ràng buộc ngữ nghĩa không thể hiện trực tiếp trên (E-)ERD}
+    
+    \noindent\indent Bên cạnh các thực thể và mối quan hệ đã thể hiện trong sơ đồ E-ERD, hệ thống cơ sở dữ liệu còn phải tuân thủ nhiều ràng buộc ngữ nghĩa nhằm đảm bảo tính toàn vẹn dữ liệu và phản ánh chính xác hoạt động thực tế của sàn thương mại điện tử. Những quy tắc này không thể hiện trực tiếp bằng ký hiệu trên sơ đồ, song vẫn được quy định rõ ràng trong quá trình thiết kế hệ thống như sau.
+    \vspace{0.3cm}
+    
+    \indent Thứ nhất, mỗi cửa hàng (STORE) chỉ được phép đăng bán sản phẩm (PRODUCT) khi cửa hàng đang ở trạng thái hoạt động (Active). Nếu cửa hàng bị tạm khóa hoặc ngừng hoạt động, mọi thao tác đăng bán sẽ bị vô hiệu.
+    \vspace{0.3cm}
+    
+    \indent Thứ hai, người bán (SELLER) chỉ được phép chỉnh sửa thông tin của sản phẩm (PRODUCT) khi sản phẩm đó chưa có đơn hàng (ORDER) nào đang trong quá trình xử lý. Điều này nhằm đảm bảo tính thống nhất giữa dữ liệu sản phẩm và các đơn hàng liên quan.
+    \vspace{0.3cm}
+    
+    \indent Thứ ba, giỏ hàng (CART) của người mua (BUYER) sẽ được tự động làm mới sau khi thanh toán thành công. Các mặt hàng trong giỏ (CART ITEM) tương ứng với đơn đã thanh toán sẽ tự động bị xóa khỏi giỏ hàng, giúp người mua dễ dàng quản lý các sản phẩm chưa mua.
+    \vspace{0.3cm}
+    
+    \indent Thứ tư, đơn vận chuyển (SHIPMENT) chỉ được khởi tạo khi đơn hàng con (ORDER UNIT) đã được người bán xác nhận. Hệ thống không cho phép tạo vận đơn cho các đơn hàng chưa được xác nhận nhằm tránh thất thoát hàng hóa.
+    \vspace{0.3cm}
+    
+    \indent Thứ năm, mỗi đơn vận chuyển (SHIPMENT) đều có thời hạn giao hàng nhất định. Nếu quá X ngày kể từ ngày tạo mà vẫn chưa hoàn tất, hệ thống sẽ tự động đánh dấu đơn đó là thất bại để xử lý hoàn tiền hoặc khiếu nại.
+    \vspace{0.3cm}
+    
+    \indent Thứ sáu, người mua (BUYER) không thể hủy đơn hàng (ORDER) sau khi đơn đã được gắn với đơn vận chuyển (SHIPMENT) và đang ở trạng thái đang giao. Việc này nhằm bảo đảm quy trình vận chuyển và tránh rủi ro cho bên bán.
+    \vspace{0.3cm}
+    
+    \indent Thứ bảy, một đơn hàng (ORDER) chỉ được chuyển sang trạng thái hoàn tất khi tất cả các đơn hàng con (ORDER UNIT) liên quan đều đã được giao thành công. Nếu còn bất kỳ đơn hàng con nào chưa hoàn tất, toàn bộ đơn sẽ vẫn ở trạng thái chờ xử lý.
+    \vspace{0.3cm}
+    
+    \indent Thứ tám, người mua (BUYER) chỉ được phép tạo đánh giá (REVIEW) cho sản phẩm sau khi đơn hàng (ORDER) chứa sản phẩm đó đã được giao thành công. Điều này đảm bảo rằng chỉ những người thực sự đã mua hàng mới có thể để lại đánh giá.
+    \vspace{0.3cm}
+    
+    \indent Thứ chín, đánh giá (REVIEW) chỉ được phép chỉnh sửa trong vòng 7 ngày kể từ thời điểm đăng. Sau thời hạn này, nội dung đánh giá sẽ được khóa để đảm bảo tính minh bạch.
+    \vspace{0.3cm}
+    
+    \indent Cuối cùng, điểm đánh giá của đánh giá (REVIEW) chỉ được tính vào uy tín của cửa hàng (STORE) nếu đánh giá đó đến từ đơn hàng thật, tức là không thuộc các đơn bị hủy hoặc hoàn tiền. Nhờ đó, hệ thống duy trì được độ tin cậy và công bằng trong xếp hạng cửa hàng.
+    
+    
+    %========================================================================================
+    

@@ -1,0 +1,436 @@
+\subsubsection{Trigger tính toán thuộc tính dẫn xuất}
+
+\paragraph{A – Hệ thống tính \texttt{TotalPrice} cho \texttt{Order}}
+
+\textbf{1. Giới thiệu} \\
+Hệ thống được thiết kế để tự động tính toán và cập nhật thuộc tính dẫn xuất \texttt{TotalPrice} (tổng tiền đơn hàng) trong cơ sở dữ liệu, đảm bảo tính chính xác và nhất quán dữ liệu. \\
+
+\textbf{2. Thuộc tính dẫn xuất được chọn} \\
+Hệ thống sử dụng kết hợp \texttt{Stored Procedure} và \texttt{Trigger} theo mô hình ``Helper \& Listeners'':
+A. Stored Procedure: sp\_UpdateOrderTotal (Helper)
+
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/78.png}
+\end{center}
+
+\textbf{Module tính toán trung tâm} \\
+
+Đây là module tính toán trung tâm, đóng vai trò như một hàm tiện ích được tái sử dụng nhiều lần. 
+
+\textbf{Đầu vào:} \texttt{p\_OrderID} (Mã đơn hàng cần tính lại). \\
+
+\textbf{Nguyên tắc tính toán:} \\
+\begin{itemize}
+    \item \textbf{TotalPrice} được tính dựa trên: Tổng tiền sản phẩm có trong \texttt{ORDER\_LINE} và tổng phí vận chuyển lưu trong \texttt{OrderUnit}.
+    \item Công thức tổng quát:
+    \[
+    TotalPrice = \text{Tổng tiền sản phẩm} + \text{Tổng phí vận chuyển}
+    \]
+    \item Trong đó:
+    \[
+    \text{Tổng tiền sản phẩm} = \sum (Quantity \times UnitPrice \times (1 - \tfrac{Discount}{100}))
+    \]
+    \[
+    \text{Tổng phí vận chuyển} = \sum (ShippingFee)
+    \]
+\end{itemize}
+
+\textbf{3. Các thao tác DML ảnh hưởng đến thuộc tính dẫn xuất} \\
+
+\textbf{3.1. Trên bảng \texttt{ORDER\_LINE}} 
+\begin{itemize}
+    \item \texttt{INSERT}: Thêm sản phẩm vào đơn hàng $\rightarrow$ thay đổi tổng tiền sản phẩm.
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/93.png}
+    \end{center}
+    \item \texttt{UPDATE}: Sửa số lượng, đơn giá, discount $\rightarrow$ thay đổi tổng tiền sản phẩm.
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/94.png}
+    \end{center}
+    \item \texttt{DELETE}: Xóa sản phẩm khỏi đơn hàng $\rightarrow$ thay đổi tổng tiền sản phẩm.
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/95.png}
+    \end{center}
+\end{itemize}
+
+\textbf{3.2. Trên bảng \texttt{OrderUnit}} 
+\begin{itemize}
+    \item \texttt{UPDATE}: Thay đổi \texttt{ShippingFee} hoặc \texttt{OrderID} $\rightarrow$ thay đổi phí vận chuyển.
+\end{itemize}
+\begin{center}
+\includegraphics[scale=0.8]{Picture/96.png}
+\end{center}
+
+\textbf{Kiểm tra} \\
+Giá tiền hiện tại \texttt{OrderID = 1} là \textbf{165000}. \\
+\begin{center}
+\includegraphics[scale=0.8]{Picture/97.png}
+\end{center}
+
+Sau khi thêm 1 sản phẩm với giá tiền \textbf{159}, lúc này \texttt{TotalPrice} sẽ tăng lên là \textbf{324000}. \\
+\begin{center}
+\includegraphics[scale=0.8]{Picture/95.png}
+\end{center}
+Bên cạnh đó, tiền ship có thể tăng lên hoặc giảm tùy thuộc vào thời gian mua sắm. \\
+
+Trong trường hợp giá ship sau khi thêm đơn hàng buyer được giảm thêm \textbf{20.000}, lúc này \texttt{TotalPrice} sẽ được cập nhật.
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/98.png}
+    \end{center}
+
+
+\textbf{B – Hệ thống tính \texttt{TotalCartValue} cho \texttt{Cart}} \\
+
+\textbf{Giới thiệu} \\
+Hệ thống được thiết kế để tự động tính toán và cập nhật thuộc tính dẫn xuất \texttt{UpdateCartTotal} (Cập nhật giá trị đơn hàng hiện tại có trong giỏ) trong cơ sở dữ liệu, đảm bảo tính chính xác và nhất quán dữ liệu. \\
+
+\textbf{Thuộc tính dẫn xuất được chọn} \\
+Thủ tục nhận vào \texttt{CartID} của giỏ hàng cần cập nhật. Nó tính tổng giá trị giỏ hàng bằng cách duyệt qua tất cả các mục (\texttt{CartItem}) thuộc giỏ đó, nhân số lượng của từng sản phẩm với giá tương ứng từ bảng \texttt{ProductVariant}, và cộng dồn kết quả. Nếu giỏ hàng không có sản phẩm nào, tổng giá trị sẽ được đặt bằng 0. Cuối cùng, thủ tục cập nhật trường \texttt{TotalCartValue} trong bảng \texttt{Cart} với tổng giá trị vừa tính được. \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/99.png}
+\end{center}
+\textbf{Công thức tính:}
+\[
+TotalCartValue = \sum (CartItem.Quantity \times ProductVariant.Price)
+\]
+
+\textbf{Các thao tác DML ảnh hưởng} 
+\begin{itemize}
+    \item \texttt{INSERT}: Thêm sản phẩm mới vào giỏ hàng $\rightarrow$ thay đổi tổng giá trị giỏ.
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/100.png}
+    \end{center}
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/101.png}
+    \end{center}
+    \item \texttt{UPDATE}: Thay đổi số lượng hoặc giá sản phẩm trong giỏ $\rightarrow$ thay đổi tổng giá trị giỏ.
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/102.png}
+    \end{center}
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/103.png}
+    \end{center}
+    \item \texttt{DELETE}: Xóa sản phẩm khỏi giỏ hàng $\rightarrow$ thay đổi tổng giá trị giỏ.
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/104.png}
+    \end{center}
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/105.png}
+    \end{center}
+\end{itemize}
+
+
+\subsection*{2.3 Thủ tục truy vấn dữ liệu}
+
+\textbf{a. Thủ tục: \texttt{sp\_Cart\_GetDetailsByBuyer}} \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/106.png}
+\end{center}
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/107.png}
+\end{center}
+\textbf{Mục đích:} \\
+Thủ tục này được sử dụng để hiển thị chi tiết toàn bộ giỏ hàng của một người mua (\texttt{Buyer}) cụ thể. Nó giúp người dùng xem lại các sản phẩm họ đã chọn, giá tiền từng món, số lượng và tổng tiền tạm tính cho từng dòng sản phẩm, đồng thời biết được sản phẩm đó thuộc cửa hàng (\texttt{Store}) nào. \\
+
+\textbf{Tham số đầu vào:} \\
+\texttt{p\_BuyerID (INT)}: Mã định danh của người mua hàng cần xem giỏ. \\
+
+\textbf{Giải thích logic xử lý:}
+\begin{itemize}
+    \item \textbf{Kiểm tra điều kiện (Validation):} Đầu tiên, hệ thống kiểm tra xem \texttt{p\_BuyerID} có tồn tại trong bảng \texttt{Buyer} hay không. Nếu không, trả về lỗi để đảm bảo tính toàn vẹn dữ liệu.
+    \item \textbf{Truy vấn dữ liệu (Query):} Sử dụng câu lệnh \texttt{SELECT} kết hợp với mệnh đề \texttt{JOIN} để liên kết dữ liệu từ 6 bảng khác nhau:
+    \begin{itemize}
+        \item \texttt{Buyer} $\rightarrow$ \texttt{Cart}: Tìm giỏ hàng của người dùng.
+        \item \texttt{Cart} $\rightarrow$ \texttt{CartItem}: Lấy danh sách các sản phẩm trong giỏ.
+        \item \texttt{CartItem} $\rightarrow$ \texttt{ProductVariant}: Lấy thông tin giá (\texttt{Price}) và mã \texttt{SKU} cụ thể của biến thể.
+        \item \texttt{ProductVariant} $\rightarrow$ \texttt{Product}: Lấy tên gốc của sản phẩm (\texttt{Title}).
+        \item \texttt{Product} $\rightarrow$ \texttt{Store}: Lấy tên cửa hàng (\texttt{Name}) bán sản phẩm đó.
+    \end{itemize}
+    \item \textbf{Tính toán cột dẫn xuất:} Cột \texttt{TotalItemPrice} được tính toán trực tiếp trong câu truy vấn bằng công thức:
+    \[
+    TotalItemPrice = Price \times Quantity
+    \]
+    \item \textbf{Lọc dữ liệu (Filtering):} Mệnh đề \texttt{WHERE b.BuyerID = p\_BuyerID} đảm bảo chỉ lấy dữ liệu của đúng người dùng được yêu cầu.
+    \item \textbf{Sắp xếp (Sorting):} Mệnh đề \texttt{ORDER BY st.Name ASC, p.Title ASC} giúp hiển thị danh sách gọn gàng: gom các sản phẩm cùng \texttt{Shop} lại với nhau (xếp theo tên \texttt{Shop}), sau đó xếp theo tên sản phẩm.
+\end{itemize}
+
+
+\textbf{b. Thủ tục: \texttt{sp\_Cart\_AnalyzeStoreTotal}} \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/108.png}
+\end{center}
+\textbf{Mục đích:} \\
+Thủ tục này phục vụ nhu cầu thống kê và phân tích. Nó tính toán tổng số tiền mà người mua dự kiến sẽ trả cho từng Cửa hàng (\texttt{Shop}). Điều này hỗ trợ các chức năng như kiểm tra điều kiện áp mã giảm giá của \texttt{Shop} hoặc đơn giản là để người dùng quản lý chi tiêu. \\
+
+\textbf{Tham số đầu vào:}
+\begin{itemize}
+    \item \texttt{p\_BuyerID (INT)}: Mã người mua hàng.
+    \item \texttt{p\_MinTotal (DECIMAL)}: Mức tổng tiền tối thiểu. Chỉ hiển thị những \texttt{Shop} mà người dùng đã mua vượt quá số tiền này.
+\end{itemize}
+
+\textbf{Giải thích logic xử lý:}
+\begin{itemize}
+    \item \textbf{Liên kết bảng (Joining):} Tương tự như thủ tục trên, ta thực hiện \texttt{JOIN} qua các bảng \texttt{Cart}, \texttt{CartItem}, \texttt{Product}, \texttt{Store} để lấy được mối quan hệ giữa sản phẩm trong giỏ và cửa hàng bán nó.
+    \item \textbf{Hàm tổng hợp (Aggregate Functions):}
+    \begin{itemize}
+        \item \texttt{COUNT(ci.ProductVariantID)}: Đếm xem người dùng mua bao nhiêu loại sản phẩm khác nhau từ shop này.
+        \item \texttt{SUM(ci.Quantity)}: Tính tổng số lượng hàng hóa mua từ shop.
+        \item \texttt{SUM(pv.Price * ci.Quantity)}: Tính tổng thành tiền (\texttt{SubTotal}) của shop đó.
+    \end{itemize}
+    \item \textbf{Gom nhóm (Grouping):} Mệnh đề \texttt{GROUP BY st.StoreID, st.Name} là bắt buộc để các hàm tổng hợp ở trên tính toán dữ liệu riêng biệt cho từng cửa hàng.
+    \item \textbf{Điều kiện trên nhóm (Having):} Mệnh đề \texttt{HAVING StoreSubTotal >= p\_MinTotal} được sử dụng thay vì \texttt{WHERE} để lọc dữ liệu dựa trên kết quả tính toán tổng tiền (Aggregate). Nó loại bỏ các \texttt{Shop} mà tổng giá trị đơn hàng nhỏ hơn mức \texttt{p\_MinTotal}.
+    \item \textbf{Sắp xếp (Sorting):} \texttt{ORDER BY StoreSubTotal DESC} đưa các \texttt{Shop} mà người dùng phải trả nhiều tiền nhất lên đầu danh sách.
+\end{itemize}
+
+\textbf{Kiểm tra} \\
+Tình huống 1: \texttt{Buyer} có \texttt{ID = 1} muốn xem mình đang chọn mua những gì.
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/109.png}
+\end{center}
+
+\textbf{Nhận xét:} \\
+Bảng kết quả sẽ hiển thị:
+\begin{itemize}
+    \item Tên cửa hàng 
+    \item Tên sản phẩm 
+    \item Số lượng 
+    \item Tổng tiền của từng dòng sản phẩm đối với \texttt{BuyerID = 2}
+\end{itemize}
+
+\textbf{Tình huống 2:} \\
+Người mua có \texttt{BuyerID = 2} muốn xem tổng tiền phải trả cho từng \texttt{Shop}, nhưng chỉ quan tâm đến các \texttt{Shop} mà tổng tiền lớn hơn \textbf{500.000 VNĐ} (ví dụ để gom đơn freeship). 
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/110.png}
+\end{center}
+
+
+\subsection*{c. Xây dựng Stored Procedures (Thủ tục lưu trữ)}
+
+\textbf{Thủ tục 1: \texttt{sp\_SearchProductByCategoryAndPrice}} \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/111.png}
+\end{center}
+\textbf{Mục đích:} \\
+Hỗ trợ chức năng tìm kiếm sản phẩm nâng cao trên hệ thống. Thủ tục này cho phép người dùng lọc sản phẩm dựa trên tên danh mục (có thể tìm gần đúng) và nằm trong một khoảng ngân sách (giá) nhất định. \\
+
+\textbf{Tham số đầu vào:}
+\begin{itemize}
+    \item \texttt{p\_CategoryName (VARCHAR)}: Tên danh mục cần tìm kiếm.
+    \item \texttt{p\_MinPrice (DECIMAL)}: Mức giá sàn (thấp nhất).
+    \item \texttt{p\_MaxPrice (DECIMAL)}: Mức giá trần (cao nhất).
+\end{itemize}
+
+\textbf{Giải thích logic xử lý:}
+\begin{itemize}
+    \item \textbf{Liên kết bảng (Joining):} Thực hiện \texttt{JOIN} qua 5 bảng gồm \texttt{Product}, \texttt{Product\_Category}, \texttt{Category}, \texttt{Store}, và \texttt{ProductVariant} để lấy đầy đủ thông tin hiển thị: Tên sản phẩm, Tên danh mục, Tên cửa hàng bán, Giá tiền và Tồn kho.
+    \item \textbf{Điều kiện lọc (Filtering):}
+    \begin{itemize}
+        \item Sử dụng \texttt{LIKE CONCAT(...)} với tham số \texttt{p\_CategoryName} để tìm kiếm tương đối (ví dụ: nhập "Điện" ra "Điện tử", "Điện thoại").
+        \item Sử dụng toán tử \texttt{BETWEEN} để lọc các sản phẩm có giá nằm trong khoảng từ \texttt{p\_MinPrice} đến \texttt{p\_MaxPrice}.
+    \end{itemize}
+    \item \textbf{Sắp xếp (Sorting):} \texttt{ORDER BY pv.Price ASC} giúp hiển thị các sản phẩm có giá rẻ nhất lên đầu danh sách.
+\end{itemize}
+
+\textbf{Kiểm tra:} \\
+Tình huống: Người dùng muốn tìm các sản phẩm thuộc nhóm "Điện" (Điện tử/Điện thoại) có giá từ 1 triệu đến 50 triệu VNĐ. \\
+\textbf{Nhận xét:} Kết quả trả về danh sách 7 sản phẩm thỏa mãn, bao gồm tai nghe, điện thoại và laptop, được sắp xếp giá tăng dần từ 1.590.000 đến 32.900.000. \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/112.png}
+\end{center}
+---
+
+\textbf{Thủ tục 2: \texttt{sp\_GetTopStoresByStockValue}} \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/113.png}
+\end{center}
+\textbf{Mục đích:} \\
+Phục vụ nhu cầu quản trị và thống kê hệ thống. Thủ tục này giúp xác định các Cửa hàng (\texttt{Shop}) có quy mô lớn dựa trên tổng lượng hàng tồn kho và tính toán tổng giá trị tài sản hàng hóa của họ. \\
+
+\textbf{Tham số đầu vào:}
+\begin{itemize}
+    \item \texttt{p\_MinTotalStock (INT)}: Ngưỡng số lượng tồn kho tối thiểu. Chỉ hiển thị các \texttt{Shop} có tổng số lượng sản phẩm trong kho lớn hơn hoặc bằng con số này.
+\end{itemize}
+
+\textbf{Giải thích logic xử lý:}
+\begin{itemize}
+    \item \textbf{Liên kết bảng (Joining):} Kết nối bảng \texttt{Store}, \texttt{Product} và \texttt{ProductVariant} để truy xuất thông tin kho hàng của từng sản phẩm thuộc cửa hàng.
+    \item \textbf{Điều kiện lọc (Filtering):} \texttt{WHERE s.Status = 'Active'} đảm bảo chỉ thống kê các cửa hàng đang hoạt động bình thường.
+    \item \textbf{Hàm tổng hợp (Aggregate Functions):}
+    \begin{itemize}
+        \item \texttt{COUNT(p.ProductID)}: Đếm tổng đầu mục sản phẩm của shop.
+        \item \texttt{SUM(pv.Stock)}: Tính tổng số lượng hàng tồn kho.
+        \item \texttt{SUM(pv.Stock * pv.Price)}: Tính tổng giá trị hàng hóa ước tính (Số lượng $\times$ Đơn giá).
+    \end{itemize}
+    \item \textbf{Gom nhóm (Grouping):} \texttt{GROUP BY s.StoreID, s.Name} để gom dữ liệu theo từng cửa hàng riêng biệt.
+    \item \textbf{Điều kiện trên nhóm (Having):} \texttt{HAVING SUM(pv.Stock) >= p\_MinTotalStock} để lọc kết quả sau khi gom nhóm, loại bỏ các \texttt{Shop} quy mô nhỏ.
+    \item \textbf{Sắp xếp (Sorting):} \texttt{ORDER BY TongGiaTriHangHoa DESC} đưa các \texttt{Shop} có giá trị tài sản lớn nhất lên đầu bảng xếp hạng.
+\end{itemize}
+
+\textbf{Kiểm tra:} \\
+Tình huống: Quản trị viên muốn lọc ra danh sách các \texttt{Shop} có tổng lượng hàng tồn kho trên 50 sản phẩm để đánh giá năng lực cung ứng. \\
+\textbf{Nhận xét:} Kết quả hiển thị 5 cửa hàng thỏa mãn điều kiện, trong đó \texttt{"John Electronics Store"} dẫn đầu với tổng tồn kho 180 và giá trị hàng hóa cao nhất.
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/114.png}
+\end{center}
+
+
+
+\subsection*{2.4. Hàm xử lý dữ liệu}
+
+\textbf{Xây dựng Functions (Hàm người dùng)} \\
+
+\textbf{Mục tiêu:} \\
+Xử lý logic nghiệp vụ tính toán và kiểm tra tính hợp lệ của dữ liệu trong giao dịch, sử dụng các cấu trúc điều khiển nâng cao. \\
+
+\textbf{a. Hàm \texttt{fn\_CalculateCartTotal}} \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/115.png}
+\end{center}
+\textbf{Mục đích:} \\
+Tính toán tổng số tiền (\texttt{Grand Total}) của một giỏ hàng bất kỳ. Hàm này được sử dụng khi hiển thị giỏ hàng hoặc bước thanh toán cuối cùng. \\
+
+\textbf{Tham số đầu vào:} \\
+\texttt{p\_CartID (INT)}: Mã định danh của giỏ hàng cần tính tiền. \\
+
+\textbf{Giải thích logic xử lý:}
+\begin{itemize}
+    \item \textbf{Kiểm tra dữ liệu (Validation):} Sử dụng \texttt{IF NOT EXISTS} để kiểm tra \texttt{CartID} có tồn tại trong hệ thống hay không. Nếu không, trả về \texttt{-1} để báo lỗi.
+    \item \textbf{Con trỏ (Cursor):} Khai báo con trỏ \texttt{cur\_CartItem} để truy vấn danh sách các mặt hàng trong giỏ (\texttt{CartItem} kết hợp \texttt{ProductVariant}).
+    \item \textbf{Vòng lặp (Looping):} Sử dụng cấu trúc \texttt{LOOP} để duyệt qua từng dòng dữ liệu mà con trỏ lấy được. Tại mỗi vòng lặp, thực hiện cộng dồn giá trị:
+    \[
+    v\_TotalAmount = v\_TotalAmount + (Quantity \times UnitPrice)
+    \]
+    \item \textbf{Kết quả:} Trả về tổng tiền kiểu \texttt{DECIMAL} sau khi duyệt hết danh sách.
+\end{itemize}
+
+\textbf{Kiểm tra:} \\
+Tình huống: Hệ thống cần hiển thị tổng tiền cho Giỏ hàng số 1. \\
+
+\textbf{Nhận xét:} Hàm trả về giá trị \textbf{28,970,000.00}, khớp với tổng giá trị các mặt hàng đang có trong giỏ của người dùng này.
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/116.png}
+\end{center}
+
+
+
+
+\textbf{b. Hàm \texttt{fn\_ValidateCartStock}} \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/117.png}
+\end{center}
+\textbf{Mục đích:} \\
+Kiểm tra tính hợp lệ của giỏ hàng trước khi tiến hành tạo đơn hàng (\texttt{Checkout}). Đảm bảo rằng khách hàng không thể đặt mua số lượng lớn hơn số lượng thực tế còn trong kho. \\
+
+\textbf{Tham số đầu vào:} \\
+\texttt{p\_CartID (INT)}: Mã định danh của giỏ hàng cần kiểm tra. \\
+
+\textbf{Giải thích logic xử lý:}
+\begin{itemize}
+    \item \textbf{Con trỏ (Cursor):} Sử dụng con trỏ \texttt{cur\_CheckStock} để lấy cặp dữ liệu \{Số lượng mua, Tồn kho thực tế\} của từng sản phẩm trong giỏ.
+    \item \textbf{Vòng lặp và Điều kiện (Loop \& IF):} Duyệt qua từng sản phẩm. Trong mỗi lần lặp, sử dụng câu lệnh \texttt{IF}:
+    \begin{itemize}
+        \item Nếu \texttt{v\_BuyQty > v\_StockQty} (Mua nhiều hơn tồn): Gán biến kết quả \texttt{v\_IsValid = FALSE} và sử dụng lệnh \texttt{LEAVE} để thoát vòng lặp ngay lập tức (cơ chế \textit{Fail-fast}).
+    \end{itemize}
+    \item \textbf{Kết quả:} Hàm trả về \texttt{TRUE (1)} nếu tất cả sản phẩm đều đủ hàng, và \texttt{FALSE (0)} nếu có ít nhất một sản phẩm không đủ.
+\end{itemize}
+
+\textbf{Kiểm tra:} \\
+Tình huống: Người dùng nhấn nút ``Thanh toán'' cho Giỏ hàng số 1. Hệ thống gọi hàm để kiểm tra tồn kho. \\
+
+\textbf{Nhận xét:} Kết quả trả về ``Hợp lệ'' (tương ứng với giá trị \texttt{1}), nghĩa là tất cả các món hàng trong giỏ số 1 đều có số lượng mua nhỏ hơn hoặc bằng số lượng tồn kho hiện có.
+
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/118.png}
+\end{center}
+
+
+
+
+\textbf{c. Hàm \texttt{fn\_TotalRevenueByStore}} \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/119.png}
+\end{center}
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/120.png}
+\end{center}
+\textbf{Mục đích:} \\
+Tính tổng doanh thu thực tế của một cửa hàng dựa trên các đơn hàng đã giao thành công. \\
+
+\textbf{Tham số đầu vào:} \\
+\texttt{p\_StoreID}: Mã cửa hàng cần tính. \\
+
+\textbf{Giải thích thuật toán:}
+\begin{itemize}
+    \item \textbf{Validation (Kiểm tra dữ liệu):} Hàm kiểm tra \texttt{p\_StoreID} có hợp lệ không (khác \texttt{NULL}, $>0$) và có tồn tại trong bảng \texttt{Store} hay không. Nếu \texttt{Store} không tồn tại, hàm trả về \texttt{-1} để báo lỗi.
+    \item \textbf{Sử dụng Con trỏ (Cursor):} Khai báo con trỏ \texttt{cur} truy vấn vào bảng \texttt{ORDER\_LINE} kết hợp với \texttt{OrderUnit}.
+    \item \textbf{Điều kiện lọc (WHERE):} Chỉ lấy dữ liệu thuộc đúng \texttt{StoreID} và quan trọng là trạng thái \texttt{Status = 'Completed'}.
+    \item \textbf{Vòng lặp tính toán (Loop):} Con trỏ duyệt qua từng dòng sản phẩm bán ra.
+    \item \textbf{Hàm thực hiện phép tính:} 
+    \[
+    TổngTiền = TổngTiền + (SốLượng \times ĐơnGiáLúcMua)
+    \]
+    \item \textbf{Lưu ý:} Việc sử dụng giá trong \texttt{ORDER\_LINE} (giá lúc mua) thay vì bảng \texttt{ProductVariant} (giá hiện tại) đảm bảo tính chính xác của doanh thu lịch sử.
+\end{itemize}
+
+\textbf{Kết quả:} \\
+Hàm trả về con số tổng doanh thu dạng \texttt{DECIMAL}.
+
+
+
+\textbf{d. Hàm \texttt{fn\_TotalSoldByVariant}} \\
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/121.png}
+\end{center}
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/122.png}
+\end{center}
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/123.png}
+\end{center}
+\textbf{Mục đích:} \\
+Thống kê tổng số lượng sản phẩm của một biến thể cụ thể đã được bán ra (dùng để phân tích độ hot của sản phẩm). \\
+
+\textbf{Tham số đầu vào:} \\
+\texttt{p\_ProductVariantID}: Mã biến thể. \\
+
+\textbf{Giải thích thuật toán:}
+\begin{itemize}
+    \item \textbf{Validation:} Kiểm tra tham số đầu vào và xác thực sự tồn tại của biến thể trong bảng \texttt{ProductVariant}. Trả về \texttt{-1} nếu biến thể không tồn tại.
+    \item \textbf{Sử dụng Con trỏ (Cursor):} Khai báo con trỏ \texttt{cur} truy vấn vào bảng \texttt{ORDER\_LINE}.
+    \item \textbf{Dữ liệu lấy ra:} Toàn bộ cột \texttt{Quantity} của các dòng có \texttt{ProductVariantID} tương ứng.
+    \item \textbf{Vòng lặp (Loop):} Duyệt qua từng dòng lệnh đặt hàng.
+    \item \textbf{Cộng dồn:} Biến \texttt{totalQty} được cộng dồn với giá trị \texttt{Quantity} của từng dòng.
+    \item \textbf{Kết quả:} Trả về số nguyên \texttt{INT} thể hiện tổng số lượng đã bán.
+\end{itemize}
+
+\textbf{Kiểm tra:} \\
+\begin{itemize}
+    \item \textbf{Kiểm tra hàm \texttt{fn\_TotalRevenueByStore}:} 
+    \begin{itemize}
+        \item Giả lập tình huống:
+        \begin{itemize}
+            \item Gán \texttt{Status = 'Completed'} cho đơn hàng thuộc \texttt{Store 1} (để tính doanh thu).
+            \item Gán \texttt{Status = 'Shipping'} cho đơn hàng thuộc \texttt{Store 2} (để kiểm tra logic loại bỏ đơn chưa hoàn thành).
+        \end{itemize}
+        \item Gán chi tiết đơn hàng (\texttt{OrderLine}):
+        \begin{itemize}
+            \item Xóa dữ liệu cũ của \texttt{UnitID = 1}.
+            \item Thêm mới 2 dòng dữ liệu:
+            \begin{itemize}
+                \item Sản phẩm A: Số lượng 2 $\times$ Đơn giá 100,000 = 200,000.
+                \item Sản phẩm B: Số lượng 1 $\times$ Đơn giá 200,000 = 200,000.
+            \end{itemize}
+        \end{itemize}
+        \item \textbf{Tổng doanh thu kỳ vọng:} 400,000.
+    \end{itemize}
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/124.png}
+\end{center}
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/125.png}
+\end{center}
+    \item \textbf{Kiểm tra hàm \texttt{fn\_TotalSoldByVariant}:} 
+    \begin{center}
+    \includegraphics[scale=0.8]{Picture/126.png}
+\end{center}
+\end{itemize}
