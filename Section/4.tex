@@ -74,7 +74,7 @@
         \\
         Bảng này còn chịu một ràng buộc ngữ nghĩa quan trọng: mỗi Buyer phải có ít nhất một phương thức thanh toán. Hai trigger BD\_PaymentMethod\_Total và BU\_PaymentMethod\_Total đảm bảo khi xóa hoặc thay đổi BuyerID của một phương thức thanh toán, hệ thống sẽ từ chối nếu đó là phương thức cuối cùng của Buyer.
         \begin{center}
-            \includegraphics[scale=0.8]{Picture/paymeth1.png}\\
+            \includegraphics[scale=0.8]{Picture/paymeth2.png}\\
             \textbf{Dữ liệu mẫu của bảng Payment method}
         \end{center}   
         Mỗi Buyer được gán từ một đến hai phương thức thanh toán, bao gồm Credit Card, E-Wallet hoặc COD. Dữ liệu được thiết kế sao cho không trùng lặp kết hợp giữa BuyerID – Type – Detail, phù hợp với ràng buộc UNIQUE đang áp dụng trên bảng. Một số Buyer chỉ có một phương thức thanh toán nhằm kiểm thử trigger ngăn chặn việc xóa phương thức cuối cùng. Ngoài ra, các chuỗi mô tả thẻ hoặc ví điện tử được ghi đúng định dạng và liên quan tới số điện thoại hoặc thông tin danh tính của Buyer.\\
@@ -84,7 +84,7 @@
         \end{center}
         Store quản lý các cửa hàng của người bán. StoreID là khóa chính và SellerID là khóa ngoại, liên kết mỗi cửa hàng với đúng một người bán. Các thuộc tính Name, Brand, BrandProfile và ReturnPolicy đều bắt buộc nhằm đảm bảo thông tin cửa hàng đầy đủ. Thuộc tính Status được kiểm soát bằng CHECK để nhận giá trị Active hoặc Inactive. Không có trigger gắn trực tiếp cho Store nhưng nó đóng vai trò trung gian trong liên kết đến Product.
         \begin{center}
-            \includegraphics[scale=0.8]{Picture/store2.png}\\
+            \includegraphics[scale=0.7]{Picture/store2.png}\\
             \textbf{Dữ liệu mẫu của bảng Store}
         \end{center}
     Bảng Store được khởi tạo với sáu cửa hàng, mỗi cửa hàng thuộc về một Seller. Các cửa hàng này khác nhau về ngành hàng (điện tử, thời trang, mỹ phẩm, thể thao, gia dụng, sách) và mang các thương hiệu cụ thể như TechPro, StyleUp hoặc Glamour. Thông tin mô tả thương hiệu và chính sách đổi trả được xây dựng chi tiết nhằm mô phỏng nội dung thực tế trong hệ thống thương mại điện tử. Trạng thái cửa hàng được phân bố giữa Active và Inactive nhằm hỗ trợ kiểm thử thao tác tạo và hiển thị sản phẩm.

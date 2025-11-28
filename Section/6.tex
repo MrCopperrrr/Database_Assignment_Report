@@ -75,3 +75,25 @@ Khi người dùng nhấn "Thêm Vào Giỏ Hàng", hệ thống sẽ thực hi�
     \includegraphics[scale=0.8]{Picture/136.png}
 \end{center}
 \textbf{Hình 10:} Chức năng thêm vào giỏ hàng
+
+\subsection*{3.3. Giao diện thủ tục khác}
+
+\paragraph*{Tổng quan}
+Hàm \texttt{fn\_CalculateCartTotal} được thiết kế để phục vụ trải nghiệm mua sắm của người dùng tại bước xem Giỏ hàng. Chức năng này thực hiện việc quét qua toàn bộ các sản phẩm mà người dùng đã thêm vào giỏ, tính toán tổng số tiền cần thanh toán dựa trên đơn giá hiện tại và số lượng đã chọn. Kết quả trả về là con số Tổng số tiền phải trả giúp người dùng nắm bắt được giá trị đơn hàng trước khi tiến hành đặt mua.
+
+\paragraph*{Luồng xử lí}
+Quy trình xử lý dữ liệu bắt đầu từ giao diện "Giỏ hàng/Thanh toán".
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/137.png}
+\end{center}
+Hàm sẽ xác định StoreID dựa trên tên shop "John Electronics Store".
+
+Hàm sẽ lấy dữ liệu từ cột Đơn giá và ô Số lượng của từng sản phẩm trong ảnh để thực hiện phép nhân và cộng dồn.
+\begin{center}
+    \includegraphics[scale=0.8]{Picture/138.png}
+\end{center}
+Gồm có danh sách hàng hoá hiện có trong giỏ hàng và các thông tin chi tiết về món hàng như là giá tiền, số lượng và tổng số tiền cuối cùng phải thanh toán.
+
+Số tiền 42.180.000đ trong ảnh là kết quả trả về của hàm \texttt{fn\_CalculateCartTotal} với tham số đầu vào là \texttt{p\_CartID}. Hàm sẽ thực hiện phép tính: Giá tiền món 1 * số lượng món 1 + Giá tiền món 2 * số lượng món 2 + … 
+
+Và kết quả cuối cùng trả về là giá trị của giỏ hàng này.
