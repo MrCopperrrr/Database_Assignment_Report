@@ -245,6 +245,7 @@
 \subsection{Viết các trigger, thủ tục, hàm}
     \subsubsection{Thủ tục Insert – Update – Delete và các kiểm tra ràng buộc dữ liệu}
     \paragraph{Bảng: User}
+    \vspace{0.1cm}
     \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/1.png}
@@ -287,6 +288,7 @@
     \end{center}   
     Kiểm tra ràng buộc: luôn được phép xóa khi UserID tồn tại và chỉ chặn khi UserID cung cấp không tồn tại. Khi User bị xóa, các bản ghi con liên quan cũng sẽ tự động bị xóa theo. Hơn nữa, việc xóa Buyer sẽ kích hoạt cascade để xóa PAYMENT\_METHOD, và trigger sẽ đảm bảo việc này thành công ngay cả khi Buyer chỉ có một phương thức thanh toán. 
     \paragraph{Bảng: Buyer}
+
     \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/8.png}
@@ -305,6 +307,7 @@
     Mục đích xóa Buyer: khi người dùng chuyển vai trò, ngừng sử dụng tài khoản mua hàng hoặc cần xóa dữ liệu lập trình kiểm thử, việc xóa Buyer giúp đảm bảo hệ thống không tồn tại dữ liệu dư thừa không còn được sử dụng.\\
     Kiểm tra ràng buộc: Hệ thống không cho phép xóa Buyer nếu BuyerID không tồn tại trong bảng Buyer. Đây là điều kiện duy nhất chặn việc xóa hồ sơ Buyer, nhằm đảm bảo việc xóa chỉ áp dụng cho các bản ghi hợp lệ. Khi Buyer bị xóa, tất cả các PAYMENT\_METHOD liên kết với BuyerID đó sẽ tự động bị xóa theo.\\
     \paragraph{Bảng: Seller}
+
     \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/10.png}
@@ -333,6 +336,7 @@
     - Điều này giúp đảm bảo hệ thống không giữ lại các cửa hàng hoặc sản phẩm không còn hoạt động.\\
     Kiểm tra ràng buộc: thủ tục sẽ bị chặn nếu Seller này vẫn còn sở hữu Store và nếu SellerID không tồn tại trong hệ thống. Người dùng phải xóa Store trước (vì Store là bảng con của Seller theo CSDL gốc của bạn). Chỉ được xóa khi SellerID tồn tại và không còn Store nào liên kết.
     \paragraph{Bảng Product}
+
     \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/13.png}
@@ -350,7 +354,7 @@
         \includegraphics[scale=0.8]{Picture/15.png}
     \end{center}
     Nhận xét: Sau khi thêm thành công đã tự động cập nhật vô bảng\\
-    \textbf{Thủ tục Update}
+    \textbf{b. Thủ tục Update}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/16.png}
     \end{center}
@@ -363,7 +367,7 @@
         \includegraphics[scale=0.8]{Picture/17.png}
     \end{center}
     Nhận xét: Cập nhật lại trạng thái sản phẩm thành công\\
-    \textbf{Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/18.png}
     \end{center}
@@ -383,7 +387,8 @@
     \end{center}
     Nhận xét: Xóa sản phẩm Product ID 13 thành công.
     \paragraph{Order}
-    \textbf{a. Insert}
+
+    \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/21.png}
     \end{center}
@@ -396,7 +401,7 @@
     \begin{center}
         \includegraphics[scale=0.8]{Picture/22.png}
     \end{center}
-    \textbf{ b. Thủ tục Update}
+    \textbf{b. Thủ tục Update}
      \begin{center}
         \includegraphics[scale=0.8]{Picture/23.png}
     \end{center}
@@ -406,7 +411,7 @@
      \begin{center}
         \includegraphics[scale=0.8]{Picture/24.png}
     \end{center}
-    \textbf{Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
     Mô Tả: Thủ tục DeleteOrder được dùng để xóa đơn hàng khỏi hệ thống. Tuy nhiên, việc xóa chỉ được phép khi đơn hàng không còn phụ thuộc.\\
     -Kiểm tra tồn tại: OrderID phải có trong bảng Order\\
     -Kiểm tra ràng buộc toàn vẹn: Không được xóa Order nếu tồn tại OrderUnit liên quan → tránh xóa đơn hàng trong khi đơn vị xử lý vẫn hoạt động.\\
@@ -418,7 +423,8 @@
         \includegraphics[scale=0.8]{Picture/25.png}
     \end{center}
     \paragraph{OrderLine}
-    \textbf{Thủ tục Insert}
+
+    \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/26.png}
     \end{center}
@@ -435,7 +441,7 @@
         \includegraphics[scale=0.8]{Picture/28.png}
     \end{center}
     Nhận xét: Sau khi thực thi, một dòng mới đã được thêm thành công vào ORDER\_LINE cho UnitID = 1. Tồn kho của ProductVariantID = 4 và TotalPrice của OrderID tương ứng đã được tự động cập nhật.\\
-    \textbf{Thủ tục Update}
+    \textbf{b. Thủ tục Update}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/29.png}
     \end{center}
@@ -451,7 +457,7 @@
         \includegraphics[scale=0.8]{Picture/31.png}
     \end{center}
     Nhận xét: Lệnh gọi thủ tục thực thi thành công. Cột Quantity của LineID = 6 đã được cập nhật chính xác từ 1 lên 3. Số lượng tồn kho của sản phẩm tương ứng và tổng giá trị đơn hàng cha cũng đã được hệ thống tự động điều chỉnh lại.\\
-    \textbf{ Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/32.png}
     \end{center}
@@ -469,7 +475,8 @@
     \end{center}
     Nhận xét:Lệnh gọi thủ tục thực thi thành công. Dòng dữ liệu có LineID = 6 đã bị xóa hoàn toàn khỏi bảng ORDER\_LINE. Số lượng tồn kho của sản phẩm đã được hoàn trả và tổng giá trị đơn hàng được tính toán lại chính xác.\\
     \paragraph{Cart}
-    \textbf{Thủ tục Insert}
+
+    \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/34.png}
     \end{center}
@@ -480,7 +487,7 @@
     \begin{center}
         \includegraphics[scale=0.8]{Picture/35.png}
     \end{center}
-    \textbf{ Thủ tục Update}
+    \textbf{b. Thủ tục Update}
      \begin{center}
         \includegraphics[scale=0.8]{Picture/36.png}
     \end{center}
@@ -495,7 +502,7 @@
         \includegraphics[scale=0.8]{Picture/37.png}
     \end{center}
 
-    \textbf{ Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
 
     \begin{center}
         \includegraphics[scale=0.8]{Picture/38.png}
@@ -504,7 +511,8 @@
     Mục đích:  Việc xóa Cart nhằm dọn dẹp dữ liệu khi giỏ hàng không còn được sử dụng, giỏ hàng bị tạo nhầm hoặc giỏ hàng trở nên trống sau khi người dùng hủy phiên đăng nhập hoặc xóa tài khoản. Điều này giúp cơ sở dữ liệu tránh lưu các giỏ hàng rác, cải thiện hiệu suất và tính sạch của dữ liệu.
 
     \paragraph{CartItem}
-    \textbf{Thủ tục Insert}
+
+    \textbf{a. Thủ tục Insert}
     
     \begin{center}
         \includegraphics[scale=0.8]{Picture/39.png}
@@ -522,7 +530,7 @@
         \includegraphics[scale=0.8]{Picture/41.png}
     \end{center}
 
-    \textbf{Thủ tục Update}
+    \textbf{b. Thủ tục Update}
 
     \begin{center}
         \includegraphics[scale=0.8]{Picture/42.png}
@@ -535,7 +543,7 @@
         \includegraphics[scale=0.8]{Picture/43.png}
     \end{center}
 
-    \textbf{Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
 
     \begin{center}
         \includegraphics[scale=0.8]{Picture/44.png}
@@ -549,7 +557,8 @@
     \end{center}
 
     \paragraph{Store}
-    \textbf{Thủ tục Insert}
+
+    \textbf{a. Thủ tục Insert}
 
     \begin{center}
         \includegraphics[scale=0.8]{Picture/46.png}
@@ -568,7 +577,7 @@
 
     Nhận xét: Dữ liệu cửa hàng được thêm mới và hiển thị đúng trong bảng Store, đảm bảo toàn bộ ràng buộc được tuân thủ.
 
-    \textbf{Thủ tục Update}
+    \textbf{b. Thủ tục Update}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/48.png}
     \end{center}
@@ -589,7 +598,7 @@
     \end{center}
     Nhận xét: Thông tin cửa hàng được cập nhật thành công sau khi vượt qua các ràng buộc.
 
-    \textbf{Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
     
     \begin{center}
         \includegraphics[scale=0.8]{Picture/51.png}
@@ -624,7 +633,8 @@
     Nhận xét: Cửa hàng được xóa đúng quy tắc. Trường hợp còn Product đã bị hệ thống từ chối và thông báo đúng lỗi.
 
     \paragraph{Category}
-    \textbf{Thủ tục Insert}
+
+    \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/57.png}
     \end{center}
@@ -639,7 +649,7 @@
     \end{center}
     Nhận xét: Danh mục mới được tạo thành công và xuất hiện trong cây phân cấp.
 
-    \textbf{Thủ tục Update}
+    \textbf{b. Thủ tục Update}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/59.png}
     \end{center}
@@ -655,7 +665,7 @@
 
     Nhận xét: Danh mục được cập nhật thành công và cấu trúc phân cấp vẫn hợp lệ.
 
-    \textbf{Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/61.png}
     \end{center}
@@ -669,7 +679,8 @@
     Nhận xét: Danh mục chỉ bị xóa khi không còn bất kỳ sản phẩm nào thuộc danh mục đó.
 
     \paragraph{Product\_Variant}
-    \textbf{Thủ tục Insert}
+
+    \textbf{a.. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/63.png}
     \end{center}
@@ -685,8 +696,8 @@
     \begin{center}
         \includegraphics[scale=0.8]{Picture/65.png}
     \end{center}
-    Nhận xét : Thêm sản phẩm mẫu khác thành công.
-    \textbf{Thủ tục Update}
+    Nhận xét : Thêm sản phẩm mẫu khác thành công.\\
+    \textbf{b. Thủ tục Update}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/66.png}
     \end{center}
@@ -703,7 +714,7 @@
     \end{center}
     Nhận xét : Sau khi thực lệnh update chuyển Promote Price về null, bảng đã được cập nhật thành côngNhận xét : Sau khi thực lệnh update chuyển Promote Price về null, bảng đã được cập nhật thành công.
 
-    \textbf{Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/69.png}
     \end{center}
@@ -728,7 +739,8 @@
 
 
     \paragraph{Review}
-    \textbf{Thủ tục Insert}
+
+    \textbf{a. Thủ tục Insert}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/73.png}
     \end{center}
@@ -742,7 +754,7 @@
         \includegraphics[scale=0.8]{Picture/74.png}
     \end{center}
     Nhận xét: Xử lý trường hợp review khi đã có review trước đó
-    \textbf{Thủ tục Update}
+    \textbf{b. Thủ tục Update}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/75.png}
     \end{center}
@@ -755,7 +767,7 @@
         \includegraphics[scale=0.8]{Picture/76.png}
     \end{center}
 
-    \textbf{Thủ tục Delete}
+    \textbf{c. Thủ tục Delete}
     \begin{center}
         \includegraphics[scale=0.8]{Picture/77.png}
     \end{center}
